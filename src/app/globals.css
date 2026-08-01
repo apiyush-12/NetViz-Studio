@@ -1,0 +1,132 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-packet-syn: #60a5fa;
+  --color-packet-ack: #34d399;
+  --color-packet-data: #a78bfa;
+  --color-packet-fin: #f472b6;
+  --color-packet-udp: #fbbf24;
+  --color-packet-drop: #f87171;
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root,
+.light {
+  --radius: 0.625rem;
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+  --primary: #2563eb;
+  --primary-foreground: #ffffff;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #0f172a;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --accent: #e2e8f0;
+  --accent-foreground: #1e293b;
+  --destructive: #ef4444;
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --ring: #2563eb;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #334155;
+  --sidebar-border: #e2e8f0;
+  --sidebar-accent: #f1f5f9;
+  --success: #16a34a;
+  --warning: #d97706;
+}
+
+.dark {
+  --radius: 0.625rem;
+  --background: #0a0e17;
+  --foreground: #e8edf5;
+  --card: #111827;
+  --card-foreground: #e8edf5;
+  --popover: #111827;
+  --popover-foreground: #e8edf5;
+  --primary: #3b82f6;
+  --primary-foreground: #ffffff;
+  --secondary: #1e293b;
+  --secondary-foreground: #e8edf5;
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
+  --accent: #1e3a5f;
+  --accent-foreground: #93c5fd;
+  --destructive: #ef4444;
+  --border: #1e293b;
+  --input: #1e293b;
+  --ring: #3b82f6;
+  --sidebar: #0d1117;
+  --sidebar-foreground: #cbd5e1;
+  --sidebar-border: #1e293b;
+  --sidebar-accent: #1e293b;
+  --success: #22c55e;
+  --warning: #f59e0b;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased transition-colors duration-200;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.packet-capsule {
+  @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-mono font-medium shadow-sm border;
+}
+
+.packet-syn { @apply bg-blue-500/20 border-blue-500/40 text-blue-500 dark:text-blue-300; }
+.packet-ack { @apply bg-emerald-500/20 border-emerald-500/40 text-emerald-600 dark:text-emerald-300; }
+.packet-data { @apply bg-violet-500/20 border-violet-500/40 text-violet-600 dark:text-violet-300; }
+.packet-fin { @apply bg-pink-500/20 border-pink-500/40 text-pink-600 dark:text-pink-300; }
+.packet-udp { @apply bg-amber-500/20 border-amber-500/40 text-amber-600 dark:text-amber-300; }
+.packet-drop { @apply bg-red-500/20 border-red-500/40 text-red-600 dark:text-red-300 line-through; }
+
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(100, 116, 139, 0.2) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(100, 116, 139, 0.2) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
