@@ -103,6 +103,14 @@
   body {
     @apply bg-background text-foreground antialiased transition-colors duration-200;
   }
+  button,
+  [role="button"] {
+    cursor: pointer;
+  }
+  button:disabled,
+  [role="button"][aria-disabled="true"] {
+    cursor: not-allowed;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
