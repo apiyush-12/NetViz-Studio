@@ -461,25 +461,11 @@ Example:
 NEXT_PUBLIC_APP_NAME="NetViz Studio"
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
 
-# Database
-DATABASE_URL="postgresql://USER:PASSWORD@localhost:5432/netviz_studio"
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_your_clerk_publishable_key_here
+CLERK_SECRET_KEY=sk_test_your_clerk_secret_key_here
 
-# Authentication
-AUTH_SECRET="replace-with-a-long-random-secret"
-NEXTAUTH_URL="http://localhost:3000"
-
-# Optional OAuth providers
-GOOGLE_CLIENT_ID=""
-GOOGLE_CLIENT_SECRET=""
-
-GITHUB_CLIENT_ID=""
-GITHUB_CLIENT_SECRET=""
-
-MICROSOFT_CLIENT_ID=""
-MICROSOFT_CLIENT_SECRET=""
-
-# Optional analytics
-NEXT_PUBLIC_ANALYTICS_ID=""
+NEXT_PUBLIC_CLERK_SIGN_IN_URL=/settings
+NEXT_PUBLIC_CLERK_SIGN_UP_URL=/settings
 ```
 
 Generate a secure secret using a trusted secret-generation method.
