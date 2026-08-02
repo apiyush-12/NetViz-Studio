@@ -60,9 +60,9 @@ The project is under active development.
 | UDP Visualizer | Available |
 | Shared Simulation Controls | Available / evolving |
 | Packet Flow Animation | Available / evolving |
-| CIDR and Subnetting Studio | Planned or in progress |
-| Topology Builder | Planned or in progress |
-| Interactive Labs | Planned or in progress |
+| CIDR and Subnetting Studio | Available |
+| Topology Builder | In progress |
+| Interactive Labs | Available |
 | ARP | Planned |
 | ICMP | Planned |
 | DHCP | Planned |
