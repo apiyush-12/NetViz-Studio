@@ -396,7 +396,7 @@ Optional:
 ### 1. Clone the Repository
 
 ```bash
-git clone <YOUR_REPOSITORY_URL>
+git clone https://github.com/apiyush-12/NetViz-Studio
 cd netviz-studio
 ```
 
@@ -931,10 +931,10 @@ Replace this section with the complete license notice or link to the `LICENSE` f
 ## Contact
 
 **Project:** NetViz Studio  
-**Maintainer:** `<YOUR_NAME>`  
-**Repository:** `<YOUR_REPOSITORY_URL>`  
-**Demo:** `<YOUR_DEPLOYMENT_URL>`  
-**Email:** `<YOUR_CONTACT_EMAIL>`
+**Maintainer:** `Piyush Kumar`  
+**Repository:** `https://github.com/apiyush-12/NetViz-Studio`  
+**Demo:** `netviz.piyussh.dev`  
+**Email:** `apiyushkumar2000@gmail.com`
 
 ---
 
