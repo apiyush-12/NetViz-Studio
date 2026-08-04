@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Clock, Layers, CheckCircle2 } from "lucide-react";
+import { ArrowRight, Clock, Layers, CheckCircle2, AlertTriangle, AlertCircle, Info, ThumbsUp, ThumbsDown, BookOpen } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, Badge } from "@/components/ui";
 import type { LearningTopic } from "@/data/learning-content";
 import { cn } from "@/lib/utils";
@@ -48,7 +48,7 @@ export function TopicCard({ topic }: { topic: LearningTopic }) {
 
           <div className="pt-3 border-t border-border/50 flex items-center justify-between">
             <span className="text-[11px] text-muted-foreground font-mono">
-              {topic.sections.length} Module Sections
+              {topic.sections.length} Topic Sections
             </span>
             <span className="inline-flex items-center gap-1 text-xs text-primary font-medium group-hover:translate-x-0.5 transition-transform">
               Read guide <ArrowRight className="h-3.5 w-3.5" />
@@ -113,29 +113,160 @@ export function LayerStack({
 
 export function ComparisonTable({
   rows,
+  headers = ["Aspect", "Option A / Legacy", "Option B / Modern"],
+  title,
 }: {
-  rows: NonNullable<LearningTopic["comparison"]>;
+  rows: { label: string; classful: string; cidr: string }[];
+  headers?: [string, string, string];
+  title?: string;
 }) {
   return (
-    <div className="overflow-x-auto rounded-xl border border-border shadow-sm">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b border-border bg-secondary/40">
-            <th className="text-left px-4 py-2.5 text-muted-foreground font-semibold w-1/4">Aspect</th>
-            <th className="text-left px-4 py-2.5 text-amber-400 font-semibold w-[37.5%]">Legacy / Option A</th>
-            <th className="text-left px-4 py-2.5 text-primary font-semibold w-[37.5%]">Modern / Option B</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row) => (
-            <tr key={row.label} className="border-b border-border/50 last:border-0 hover:bg-accent/20 transition-colors">
-              <td className="px-4 py-2.5 text-xs text-muted-foreground font-medium">{row.label}</td>
-              <td className="px-4 py-2.5 text-xs font-mono text-foreground/90">{row.classful}</td>
-              <td className="px-4 py-2.5 text-xs font-mono text-foreground">{row.cidr}</td>
+    <div className="rounded-xl border border-border bg-card overflow-hidden shadow-sm space-y-0">
+      {title && (
+        <div className="px-4 py-2.5 border-b border-border bg-secondary/30">
+          <h4 className="text-xs font-bold text-foreground">{title}</h4>
+        </div>
+      )}
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-border bg-secondary/40">
+              <th className="text-left px-4 py-2.5 text-xs text-muted-foreground font-semibold w-1/4">{headers[0]}</th>
+              <th className="text-left px-4 py-2.5 text-xs text-amber-400 font-semibold w-[37.5%]">{headers[1]}</th>
+              <th className="text-left px-4 py-2.5 text-xs text-primary font-semibold w-[37.5%]">{headers[2]}</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {rows.map((row) => (
+              <tr key={row.label} className="border-b border-border/50 last:border-0 hover:bg-accent/20 transition-colors">
+                <td className="px-4 py-2.5 text-xs text-muted-foreground font-medium">{row.label}</td>
+                <td className="px-4 py-2.5 text-xs font-mono text-foreground/90">{row.classful}</td>
+                <td className="px-4 py-2.5 text-xs font-mono text-foreground">{row.cidr}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+export function SimpleDiagramDisplay({
+  title = "Simple Representation",
+  textRepresentation,
+}: {
+  title?: string;
+  textRepresentation: string;
+}) {
+  return (
+    <div className="rounded-xl border border-border bg-card p-4 space-y-3 shadow-sm">
+      <div className="flex items-center gap-2">
+        <Info className="h-4 w-4 text-primary shrink-0" />
+        <h3 className="text-xs font-bold text-foreground uppercase tracking-wider">{title}</h3>
+      </div>
+      <div className="bg-secondary/60 rounded-lg border border-border p-4 font-mono text-xs text-foreground overflow-x-auto whitespace-pre leading-relaxed">
+        {textRepresentation}
+      </div>
+    </div>
+  );
+}
+
+export function ImportantTerms({ terms }: { terms: { term: string; definition: string }[] }) {
+  return (
+    <div className="rounded-xl border border-border bg-card p-4 space-y-3 shadow-sm">
+      <h3 className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-2">
+        <BookOpen className="h-4 w-4 text-primary" /> Key Networking Terms
+      </h3>
+      <div className="grid sm:grid-cols-2 gap-3">
+        {terms.map((item) => (
+          <div key={item.term} className="rounded-lg border border-border bg-secondary/20 p-3 space-y-1">
+            <span className="font-mono font-semibold text-xs text-primary">{item.term}</span>
+            <p className="text-xs text-muted-foreground leading-relaxed">{item.definition}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export function ProsAndCons({ advantages, disadvantages }: { advantages?: string[]; disadvantages?: string[] }) {
+  if (!advantages?.length && !disadvantages?.length) return null;
+
+  return (
+    <div className="grid sm:grid-cols-2 gap-4">
+      {advantages && advantages.length > 0 && (
+        <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-4 space-y-2 shadow-sm">
+          <h4 className="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+            <ThumbsUp className="h-3.5 w-3.5 text-emerald-400" /> Advantages
+          </h4>
+          <ul className="space-y-1.5">
+            {advantages.map((adv) => (
+              <li key={adv} className="flex gap-2 text-xs text-muted-foreground leading-relaxed">
+                <span className="text-emerald-400 font-bold shrink-0">•</span>
+                {adv}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {disadvantages && disadvantages.length > 0 && (
+        <div className="rounded-xl border border-rose-500/30 bg-rose-500/5 p-4 space-y-2 shadow-sm">
+          <h4 className="text-xs font-bold text-rose-400 uppercase tracking-wider flex items-center gap-1.5">
+            <ThumbsDown className="h-3.5 w-3.5 text-rose-400" /> Limitations & Disadvantages
+          </h4>
+          <ul className="space-y-1.5">
+            {disadvantages.map((dis) => (
+              <li key={dis} className="flex gap-2 text-xs text-muted-foreground leading-relaxed">
+                <span className="text-rose-400 font-bold shrink-0">•</span>
+                {dis}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function CommonMistakesCallout({ mistakes }: { mistakes: string[] }) {
+  return (
+    <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 space-y-2 shadow-sm">
+      <h3 className="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+        <AlertTriangle className="h-4 w-4 text-amber-400" /> Common Mistakes & Misconceptions
+      </h3>
+      <ul className="space-y-2">
+        {mistakes.map((mistake) => (
+          <li key={mistake} className="flex gap-2 text-xs text-muted-foreground leading-relaxed">
+            <span className="text-amber-400 font-bold shrink-0">⚠️</span>
+            {mistake}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export function WarningCalloutBox({ message }: { message: string }) {
+  return (
+    <div className="rounded-xl border border-rose-500/40 bg-rose-500/15 p-4 flex gap-3 shadow-sm items-start">
+      <AlertCircle className="h-5 w-5 text-rose-400 shrink-0 mt-0.5" />
+      <div className="space-y-1 text-xs text-rose-200 leading-relaxed font-medium">
+        {message}
+      </div>
+    </div>
+  );
+}
+
+export function AdvancedNotesBox({ notes }: { notes: string }) {
+  return (
+    <div className="rounded-xl border border-border bg-secondary/30 p-4 space-y-2 shadow-sm">
+      <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+        <Info className="h-3.5 w-3.5 text-primary" /> Advanced Notes & Protocol Details
+      </h3>
+      <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-line font-mono">
+        {notes}
+      </p>
     </div>
   );
 }
@@ -213,7 +344,7 @@ export function KeyTakeaways({ items }: { items: string[] }) {
   return (
     <div className="rounded-xl border border-primary/25 bg-primary/10 p-4 space-y-2 shadow-sm">
       <h3 className="text-xs font-bold text-primary flex items-center gap-1.5 uppercase tracking-wider">
-        <CheckCircle2 className="h-4 w-4 text-primary" /> Key Takeaways
+        <CheckCircle2 className="h-4 w-4 text-primary" /> Key Takeaways & Points to Remember
       </h3>
       <ul className="space-y-1.5">
         {items.map((item) => (

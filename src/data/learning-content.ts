@@ -1,8 +1,61 @@
+import { ethernetTopic } from "@/content/learn/ethernet";
+import { wifiTopic } from "@/content/learn/wifi";
+import { macAddressTopic } from "@/content/learn/mac-address";
+import { switchTopic } from "@/content/learn/switch";
+import { ipAddressTopic } from "@/content/learn/ip-address";
+import { staticIpTopic } from "@/content/learn/static-ip";
+import { dhcpTopic } from "@/content/learn/dhcp";
+import { subnetTopic } from "@/content/learn/subnet";
+import { routerTopic } from "@/content/learn/router";
+import { defaultGatewayTopic } from "@/content/learn/default-gateway";
+import { routesTopic } from "@/content/learn/routes";
+import { staticRoutingTopic } from "@/content/learn/static-routing";
+import { ospfTopic } from "@/content/learn/ospf";
+import { bgpTopic } from "@/content/learn/bgp";
+import { pingTopic } from "@/content/learn/ping";
+import { icmpTopic } from "@/content/learn/icmp";
+import { tcpTopic } from "@/content/learn/tcp";
+import { udpTopic } from "@/content/learn/udp";
+import { portsTopic } from "@/content/learn/ports";
+import { firewallTopic } from "@/content/learn/firewall";
+import { tlsTopic } from "@/content/learn/tls";
+import { sslTopic } from "@/content/learn/ssl";
+import { vpnTopic } from "@/content/learn/vpn";
+import { dnsTopic } from "@/content/learn/dns";
+import { httpTopic } from "@/content/learn/http";
+import { httpsTopic } from "@/content/learn/https";
+import { loadBalancerTopic } from "@/content/learn/load-balancer";
+import { vpcTopic } from "@/content/learn/vpc";
+import { directConnectTopic } from "@/content/learn/direct-connect";
+import { cloudWanTopic } from "@/content/learn/cloud-wan";
+import { transitGatewayTopic } from "@/content/learn/transit-gateway";
+import { dataCenterTopic } from "@/content/learn/data-center";
+import { fusionRouterTopic } from "@/content/learn/fusion-router";
+import { accessPointTopic } from "@/content/learn/access-point";
+import { sdWanTopic } from "@/content/learn/sd-wan";
+import { dnaCenterTopic } from "@/content/learn/dna-center";
+import { saseTopic } from "@/content/learn/sase";
+import { isIsTopic } from "@/content/learn/is-is";
+
+export type ImportantTerm = {
+  term: string;
+  definition: string;
+};
+
+export type SimpleDiagram = {
+  title?: string;
+  textRepresentation?: string;
+  type?: string;
+};
+
 export type LearningSection = {
   id: string;
   title: string;
   body: string;
   bullets?: string[];
+  codeBlock?: string;
+  warningCallout?: string;
+  noteCallout?: string;
 };
 
 export type LearningTopic = {
@@ -16,11 +69,67 @@ export type LearningTopic = {
   sections: LearningSection[];
   relatedLinks?: { label: string; href: string }[];
   layers?: { number: number | string; name: string; pdu: string; description: string; examples: string[] }[];
-  comparison?: { label: string; classful: string; cidr: string }[];
+  comparison?:
+    | { label: string; classful: string; cidr: string }[]
+    | {
+        title?: string;
+        headers?: [string, string, string];
+        rows: { label: string; classful: string; cidr: string }[];
+      };
+  importantTerms?: ImportantTerm[];
+  diagram?: SimpleDiagram;
+  advantages?: string[];
+  disadvantages?: string[];
+  commonUseCases?: string[];
+  commonMistakes?: string[];
+  beginnerSummary?: string;
+  advancedNotes?: string;
+  warningCallout?: string;
 };
 
-export const learningTopics: LearningTopic[] = [
-  // 1. OSI Model (Updated & Formatted)
+const newTopicsList: LearningTopic[] = [
+  ethernetTopic,
+  wifiTopic,
+  macAddressTopic,
+  switchTopic,
+  ipAddressTopic,
+  staticIpTopic,
+  dhcpTopic,
+  subnetTopic,
+  routerTopic,
+  defaultGatewayTopic,
+  routesTopic,
+  staticRoutingTopic,
+  ospfTopic,
+  bgpTopic,
+  pingTopic,
+  icmpTopic,
+  tcpTopic,
+  udpTopic,
+  portsTopic,
+  firewallTopic,
+  tlsTopic,
+  sslTopic,
+  vpnTopic,
+  dnsTopic,
+  httpTopic,
+  httpsTopic,
+  loadBalancerTopic,
+  vpcTopic,
+  directConnectTopic,
+  cloudWanTopic,
+  transitGatewayTopic,
+  dataCenterTopic,
+  fusionRouterTopic,
+  accessPointTopic,
+  sdWanTopic,
+  dnaCenterTopic,
+  saseTopic,
+  isIsTopic,
+];
+
+const existingTopics: LearningTopic[] = [
+  // 1. OSI Model
   {
     id: "osi-model",
     title: "OSI 7-Layer Reference Model",
@@ -74,7 +183,7 @@ export const learningTopics: LearningTopic[] = [
     ],
   },
 
-  // 2. TCP/IP Model (Updated & Formatted)
+  // 2. TCP/IP Model
   {
     id: "tcp-ip-model",
     title: "TCP/IP Architecture & Protocol Suite",
@@ -119,7 +228,7 @@ export const learningTopics: LearningTopic[] = [
     ],
   },
 
-  // 3. CIDR vs Classful (Updated & Formatted)
+  // 3. CIDR vs Classful
   {
     id: "cidr-vs-classful",
     title: "CIDR vs Classful Addressing",
@@ -165,7 +274,7 @@ export const learningTopics: LearningTopic[] = [
     ],
   },
 
-  // 4. Subnetting (Updated & Formatted)
+  // 4. Subnetting
   {
     id: "subnetting",
     title: "Subnetting & IP Address Mathematics",
@@ -215,7 +324,7 @@ export const learningTopics: LearningTopic[] = [
     ],
   },
 
-  // 5. Routing Basics (Updated & Formatted)
+  // 5. Routing Basics
   {
     id: "routing-basics",
     title: "IP Routing & Longest Prefix Match",
@@ -264,7 +373,7 @@ export const learningTopics: LearningTopic[] = [
     ],
   },
 
-  // 6. Ethernet & ARP (NEW)
+  // 6. Ethernet & ARP
   {
     id: "ethernet-arp",
     title: "Ethernet, MAC Addressing & ARP Resolution",
@@ -309,7 +418,7 @@ export const learningTopics: LearningTopic[] = [
     ],
   },
 
-  // 7. Packet Encapsulation & Traversal (NEW)
+  // 7. Packet Encapsulation & Traversal
   {
     id: "packet-encapsulation",
     title: "Packet Encapsulation & Hop Traversal",
@@ -348,7 +457,7 @@ export const learningTopics: LearningTopic[] = [
     ],
   },
 
-  // 8. TCP Flow Control (NEW)
+  // 8. TCP Flow Control
   {
     id: "tcp-flow-control",
     title: "TCP Transport, Handshake & Flow Control",
@@ -393,7 +502,7 @@ export const learningTopics: LearningTopic[] = [
     ],
   },
 
-  // 9. OSPF Routing (NEW)
+  // 9. OSPF Routing
   {
     id: "ospf-routing",
     title: "OSPF Link-State Routing & SPF Calculation",
@@ -432,7 +541,7 @@ export const learningTopics: LearningTopic[] = [
     ],
   },
 
-  // 10. BGP Routing (NEW)
+  // 10. BGP Routing
   {
     id: "bgp-routing",
     title: "BGP Path-Vector Routing & Autonomous Systems",
@@ -473,7 +582,7 @@ export const learningTopics: LearningTopic[] = [
     ],
   },
 
-  // 11. VLANs & Trunking (NEW)
+  // 11. VLANs & Trunking
   {
     id: "vlans-trunking",
     title: "VLAN Segmentation, 802.1Q & Inter-VLAN Routing",
@@ -510,7 +619,7 @@ export const learningTopics: LearningTopic[] = [
     ],
   },
 
-  // 12. Services DNS & DHCP (NEW)
+  // 12. Services DNS & DHCP
   {
     id: "services-dns-dhcp",
     title: "DHCP, DNS & Core Infrastructure Services",
@@ -548,6 +657,11 @@ export const learningTopics: LearningTopic[] = [
       { label: "DNS Resolution Lab", href: "/labs/dns-resolution" },
     ],
   },
+];
+
+export const learningTopics: LearningTopic[] = [
+  ...newTopicsList,
+  ...existingTopics,
 ];
 
 export function getLearningTopic(id: string): LearningTopic | undefined {
