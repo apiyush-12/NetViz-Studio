@@ -1,0 +1,88 @@
+import type { ExplanationSection } from "@/features/protocols/shared/protocol-types";
+
+export const BGP_EXPLANATION_SECTIONS: ExplanationSection[] = [
+  {
+    eventType: "state-change",
+    beginner: {
+      whatHappened: "A BGP peering session state changed (e.g. to Connect, OpenSent, or Established).",
+      whyItHappened: "BGP routers must establish a reliable TCP session and exchange OPEN/KEEPALIVE messages before exchanging route advertisements.",
+      protocolRule: "BGP Finite State Machine (FSM) defines 6 states: Idle, Connect, Active, OpenSent, OpenConfirm, Established.",
+      fieldsChanged: ["peer.state", "sessionUptime"],
+      whatHappensNext: "Once Established, peers can advertise prefixes using BGP UPDATE messages.",
+      misconception: "BGP does not discover peers automatically via multicast; neighbor IP addresses and AS numbers must be explicitly configured.",
+      realWorldUse: "Internet Service Providers (ISPs) and cloud providers peer via BGP to interconnect the global Internet.",
+    },
+    advanced: {
+      whatHappened: "BGP FSM state transition executed on peering interface.",
+      whyItHappened: "TCP 3-way handshake established, OPEN parameters acknowledged, or KEEPALIVE received.",
+      protocolRule: "RFC 4271 Section 8: BGP session transitions to Established upon receiving peer's KEEPALIVE in OpenConfirm state.",
+      fieldsChanged: ["peer.sessionState", "peer.holdTimer", "peer.bgpId"],
+      whatHappensNext: "Peers begin initial route advertisement flood and maintain session liveness using periodic KEEPALIVEs.",
+      misconception: "BGP does not use transport multicast; it relies strictly on point-to-point TCP connections over port 179.",
+      realWorldUse: "Internet Exchange Points (IXPs) use BGP route servers to interconnect hundreds of autonomous systems simultaneously.",
+    },
+  },
+  {
+    eventType: "packet-sent",
+    beginner: {
+      whatHappened: "A BGP message (OPEN, UPDATE, KEEPALIVE, or NOTIFICATION) was transmitted across an AS boundary.",
+      whyItHappened: "BGP uses UPDATE messages to advertise new prefixes, announce changed path attributes, or withdraw unreachable networks.",
+      protocolRule: "BGP messages are carried reliably inside TCP segments on port 179.",
+      fieldsChanged: ["bgpTable", "txPackets"],
+      whatHappensNext: "The receiving router validates the AS_PATH for routing loops and updates its BGP table.",
+      misconception: "Route withdrawals are not separate packet types; they are carried within standard BGP UPDATE messages.",
+      realWorldUse: "Network operators use BGP UPDATE announcements to steer global Internet traffic across optimal transit providers.",
+    },
+    advanced: {
+      whatHappened: "BGP PDU transmitted over established TCP port 179 connection.",
+      whyItHappened: "Prefix origination, attribute modification (LOCAL_PREF/MED/AS_PATH), or prefix withdrawal.",
+      protocolRule: "RFC 4271 Section 4.3: BGP UPDATE messages contain Withdrawn Routes, Path Attributes (AS_PATH, NEXT_HOP, LOCAL_PREF, MED), and NLRI.",
+      fieldsChanged: ["bgpRibIn", "asPathLength", "peer.txUpdates"],
+      whatHappensNext: "Inbound policy filters applied, loop detection verified against local ASN, and best-path algorithm triggered.",
+      misconception: "AS_PATH is not merely a distance counter; its primary architectural role is loop prevention between autonomous systems.",
+      realWorldUse: "BGP community strings and local preferences allow multi-homed enterprises to implement custom outbound traffic engineering.",
+    },
+  },
+  {
+    eventType: "route-calculated",
+    beginner: {
+      whatHappened: "The router evaluated multiple candidate paths to select the single best route to install.",
+      whyItHappened: "When multiple paths exist to the same prefix, BGP runs a policy-driven decision process to select the winner.",
+      protocolRule: "BGP is strongly policy-driven: highest LOCAL_PREF is preferred before AS_PATH length or MED.",
+      fieldsChanged: ["bgpTable.best", "ipRoutingTable"],
+      whatHappensNext: "The best route is marked with '*>' and installed into the IP forwarding table.",
+      misconception: "BGP does not just choose the shortest physical distance or lowest latency; administrative policy always takes precedence.",
+      realWorldUse: "Enterprises set high LOCAL_PREF on cheap unmetered direct connections and lower LOCAL_PREF on expensive metered backup transit.",
+    },
+    advanced: {
+      whatHappened: "BGP Best-Path Decision algorithm executed across candidate paths in the Adj-RIB-In.",
+      whyItHappened: "Receipt of new NLRI or attribute change triggered path re-evaluation.",
+      protocolRule: "RFC 4271 Section 9.1: Deterministic tie-breaking sequence: 1. Valid next-hop, 2. Highest LOCAL_PREF, 3. Locally originated, 4. Shortest AS_PATH, 5. Lowest ORIGIN, 6. Lowest MED, 7. eBGP over iBGP, 8. Lowest Router ID.",
+      fieldsChanged: ["locRib", "fib.entry", "bgpTable.selectedRoute"],
+      whatHappensNext: "The winner is installed in Loc-RIB and advertised to other BGP peers subject to outbound export policies.",
+      misconception: "AS-path prepending makes a path appear longer, tricking remote autonomous systems into preferring alternative routes.",
+      realWorldUse: "AS-path prepending is the standard Internet traffic engineering technique for influencing inbound traffic from the outside world.",
+    },
+  },
+  {
+    eventType: "route-updated",
+    beginner: {
+      whatHappened: "The winning BGP route was installed into the IP routing table.",
+      whyItHappened: "The router completed best-path evaluation and selected the optimal next-hop router.",
+      protocolRule: "eBGP routes are typically installed with an Administrative Distance of 20 (or 200 for iBGP).",
+      fieldsChanged: ["routingTable", "activeNextHop"],
+      whatHappensNext: "All data packets destined for that prefix are forwarded to the selected next-hop IP.",
+      misconception: "Routers only install the single best path into the active forwarding table, keeping alternative paths in reserve.",
+      realWorldUse: "If the primary provider fails, BGP switches over to the backup candidate path without manual intervention.",
+    },
+    advanced: {
+      whatHappened: "Forwarding Information Base (FIB) programmed with selected BGP next-hop adjacency.",
+      whyItHappened: "Loc-RIB selection resolved next-hop egress interface and recursive routing check passed.",
+      protocolRule: "Administrative Distance 20 assigned for external eBGP routes; recursive next-hop lookup performed via IGP/connected routes.",
+      fieldsChanged: ["fib.forwardingTable", "routingTable.installedRoutes"],
+      whatHappensNext: "Line cards and hardware ASICs forward destination IP packets at line rate.",
+      misconception: "If the next-hop IP is unreachable in the IGP/connected table, the BGP route is considered invalid and cannot be installed.",
+      realWorldUse: "BGP with BFD achieves sub-second failover for mission-critical hybrid cloud connections (AWS Direct Connect / Azure ExpressRoute).",
+    },
+  },
+];

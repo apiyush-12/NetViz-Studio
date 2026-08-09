@@ -1,10 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { useSimulationStore } from "@/features/simulation/simulation-store";
 import { getProtocol, getImplementedProtocols } from "@/features/protocols/registry";
-import { Label, Input, Button, Switch } from "@/components/ui";
+import { Label, Input, Button, Switch, Badge } from "@/components/ui";
 import { tcpConfigSchema, defaultTcpConfig } from "@/features/protocols/tcp/tcp.config";
 import { udpConfigSchema, defaultUdpConfig } from "@/features/protocols/udp/udp.config";
+import { ProtocolComparisonModal } from "./comparison/protocol-comparison-modal";
 
 export function ProtocolSelector({
   value,
@@ -43,7 +45,10 @@ export function ProtocolConfigForm() {
     const tcpConfig = { ...defaultTcpConfig, ...config };
     return (
       <div className="space-y-3 p-3 border border-border rounded-lg bg-card">
-        <h3 className="text-sm font-semibold">TCP Configuration</h3>
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-semibold">TCP Configuration</h3>
+          <ProtocolComparisonModal />
+        </div>
         <div className="grid grid-cols-2 gap-3">
           <Field label="Data packets" type="number" value={tcpConfig.packetCount}
             onChange={(v) => updateConfig({ packetCount: Number(v) })} min={1} max={10} />
@@ -82,7 +87,10 @@ export function ProtocolConfigForm() {
     const dropStr = Array.isArray(udpConfig.dropIndices) ? udpConfig.dropIndices.join(",") : "";
     return (
       <div className="space-y-3 p-3 border border-border rounded-lg bg-card">
-        <h3 className="text-sm font-semibold">UDP Configuration</h3>
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-semibold">UDP Configuration</h3>
+          <ProtocolComparisonModal />
+        </div>
         <div className="grid grid-cols-2 gap-3">
           <Field label="Datagram count" type="number" value={udpConfig.datagramCount}
             onChange={(v) => updateConfig({ datagramCount: Number(v) })} min={1} max={15} />
@@ -109,6 +117,80 @@ export function ProtocolConfigForm() {
         <Button onClick={() => { udpConfigSchema.parse({ ...defaultUdpConfig, ...config }); regenerate(); }} className="w-full">
           Apply & Regenerate
         </Button>
+      </div>
+    );
+  }
+
+  if (protocolId === "ospf") {
+    return (
+      <div className="space-y-3 p-3 border border-border rounded-lg bg-card">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-semibold">OSPF Simulation & SPF Controls</h3>
+            <Badge variant="default" className="text-[10px]">Area 0</Badge>
+          </div>
+          <div className="flex items-center gap-2">
+            <ProtocolComparisonModal />
+            <Link href="/protocols/ospf">
+              <Button size="sm" variant="default" className="text-xs">
+                Open Dedicated OSPF Studio →
+              </Button>
+            </Link>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-2 text-xs">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ failureScenario: "r2_r4_cost_high" }); regenerate(); }}
+          >
+            Scenario: High Link Cost (R2-R4=50)
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ failureScenario: "r2_r4_break" }); regenerate(); }}
+          >
+            Scenario: Break Link R2-R4
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (protocolId === "bgp") {
+    return (
+      <div className="space-y-3 p-3 border border-border rounded-lg bg-card">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-semibold">BGP Autonomous Systems & Policy Controls</h3>
+            <Badge variant="default" className="text-[10px]">4 AS Domain</Badge>
+          </div>
+          <div className="flex items-center gap-2">
+            <ProtocolComparisonModal />
+            <Link href="/protocols/bgp">
+              <Button size="sm" variant="default" className="text-xs">
+                Open Dedicated BGP Studio →
+              </Button>
+            </Link>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-2 text-xs">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ failureScenario: "as_path_prepend_as65002" }); regenerate(); }}
+          >
+            Scenario: AS-Path Prepend (3x)
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ failureScenario: "break_as65001_as65002" }); regenerate(); }}
+          >
+            Scenario: Break Peering Link
+          </Button>
+        </div>
       </div>
     );
   }

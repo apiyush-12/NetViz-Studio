@@ -1,6 +1,8 @@
 import type { ProtocolModule } from "@/features/protocols/shared/protocol-types";
 import { tcpModule } from "./tcp/tcp.module";
 import { udpModule } from "./udp/udp.module";
+import { ospfModule } from "./ospf/ospf.module";
+import { bgpModule } from "./bgp/bgp.module";
 
 const plannedProtocols: Omit<ProtocolModule, "generateSimulation" | "configurationSchema" | "defaultConfiguration" | "defaultTopology" | "packetFields" | "explanationSections">[] = [
   { id: "icmp", name: "ICMP", category: "network", layer: "Network (Layer 3)", summary: "Internet Control Message Protocol — diagnostics and error reporting.", status: "planned", learningObjectives: [], simplificationNotes: [] },
@@ -14,8 +16,6 @@ const plannedProtocols: Omit<ProtocolModule, "generateSimulation" | "configurati
   { id: "nat", name: "NAT", category: "network", layer: "Network (Layer 3)", summary: "Network Address Translation — private to public address mapping.", status: "planned", learningObjectives: [], simplificationNotes: [] },
   { id: "vlan", name: "VLAN", category: "data-link", layer: "Data-Link (Layer 2)", summary: "Virtual LAN — logical network segmentation.", status: "planned", learningObjectives: [], simplificationNotes: [] },
   { id: "stp", name: "STP", category: "data-link", layer: "Data-Link (Layer 2)", summary: "Spanning Tree Protocol — loop-free switching.", status: "planned", learningObjectives: [], simplificationNotes: [] },
-  { id: "ospf", name: "OSPF", category: "routing", layer: "Network (Layer 3)", summary: "Open Shortest Path First — link-state routing.", status: "planned", learningObjectives: [], simplificationNotes: [] },
-  { id: "bgp", name: "BGP", category: "routing", layer: "Network (Layer 3)", summary: "Border Gateway Protocol — inter-domain routing.", status: "planned", learningObjectives: [], simplificationNotes: [] },
   { id: "rip", name: "RIP", category: "routing", layer: "Network (Layer 3)", summary: "Routing Information Protocol — distance-vector routing.", status: "planned", learningObjectives: [], simplificationNotes: [] },
   { id: "isis", name: "IS-IS", category: "routing", layer: "Network (Layer 3)", summary: "Intermediate System to Intermediate System routing.", status: "planned", learningObjectives: [], simplificationNotes: [] },
   { id: "mpls", name: "MPLS", category: "network", layer: "Network (Layer 2.5)", summary: "Multiprotocol Label Switching.", status: "planned", learningObjectives: [], simplificationNotes: [] },
@@ -36,7 +36,7 @@ function createPlaceholderModule(
   };
 }
 
-const implementedModules: ProtocolModule[] = [tcpModule, udpModule];
+const implementedModules: ProtocolModule[] = [tcpModule, udpModule, ospfModule, bgpModule];
 const placeholderModules: ProtocolModule[] = plannedProtocols.map(createPlaceholderModule);
 
 const allModules: ProtocolModule[] = [...implementedModules, ...placeholderModules];

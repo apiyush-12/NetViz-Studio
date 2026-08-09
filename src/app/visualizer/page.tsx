@@ -13,6 +13,8 @@ import { ProtocolSelector, ProtocolConfigForm } from "@/components/protocols/pro
 import { useSimulationStore } from "@/features/simulation/simulation-store";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { Tabs } from "@/components/ui";
+import { OspfVisualizer } from "@/components/protocols/ospf/ospf-visualizer";
+import { BgpVisualizer } from "@/components/protocols/bgp/bgp-visualizer";
 
 function VisualizerContent() {
   const searchParams = useSearchParams();
@@ -26,6 +28,40 @@ function VisualizerContent() {
     const param = searchParams.get("protocol") ?? "tcp";
     loadProtocol(param);
   }, [searchParams, loadProtocol]);
+
+  if (protocolId === "ospf") {
+    return (
+      <div className="flex flex-col h-full">
+        <div className="p-3 border-b border-border space-y-3">
+          <div className="w-48">
+            <label className="text-xs text-muted-foreground mb-1 block">Protocol</label>
+            <ProtocolSelector
+              value={protocolId ?? "ospf"}
+              onChange={(id) => loadProtocol(id)}
+            />
+          </div>
+        </div>
+        <OspfVisualizer />
+      </div>
+    );
+  }
+
+  if (protocolId === "bgp") {
+    return (
+      <div className="flex flex-col h-full">
+        <div className="p-3 border-b border-border space-y-3">
+          <div className="w-48">
+            <label className="text-xs text-muted-foreground mb-1 block">Protocol</label>
+            <ProtocolSelector
+              value={protocolId ?? "bgp"}
+              onChange={(id) => loadProtocol(id)}
+            />
+          </div>
+        </div>
+        <BgpVisualizer />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-full">

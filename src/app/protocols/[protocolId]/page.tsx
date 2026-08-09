@@ -15,6 +15,8 @@ import { getProtocol } from "@/features/protocols/registry";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { Tabs, Badge } from "@/components/ui";
 import Link from "next/link";
+import { OspfVisualizer } from "@/components/protocols/ospf/ospf-visualizer";
+import { BgpVisualizer } from "@/components/protocols/bgp/bgp-visualizer";
 
 function ProtocolDetailContent() {
   const params = useParams();
@@ -46,6 +48,14 @@ function ProtocolDetailContent() {
         </Link>
       </div>
     );
+  }
+
+  if (protocolId === "ospf") {
+    return <OspfVisualizer />;
+  }
+
+  if (protocolId === "bgp") {
+    return <BgpVisualizer />;
   }
 
   return (

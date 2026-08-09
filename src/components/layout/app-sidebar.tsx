@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import {
   LayoutDashboard,
   Network,

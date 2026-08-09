@@ -1,7 +1,7 @@
 "use client";
 
 import { useSimulationStore } from "@/features/simulation/simulation-store";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui";
+import { Card, CardContent, CardHeader, CardTitle, Badge } from "@/components/ui";
 
 const TCP_STATES = [
   "CLOSED", "LISTEN", "SYN-SENT", "SYN-RECEIVED", "ESTABLISHED",
@@ -115,6 +115,76 @@ export function UdpComparisonPanel() {
               ))}
             </tbody>
           </table>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+export function OspfSummaryPanel() {
+  const protocolId = useSimulationStore((s) => s.protocolId);
+  const protocolState = useSimulationStore((s) => s.protocolState);
+
+  if (protocolId !== "ospf") return null;
+
+  const activeShortestPath = (protocolState.activeShortestPath as string[]) ?? ["R1", "R2", "R4"];
+  const totalCost = (protocolState.totalCost as number) ?? 15;
+
+  return (
+    <Card>
+      <CardHeader className="pb-2 flex flex-row items-center justify-between">
+        <CardTitle className="text-sm">OSPF Convergence Status</CardTitle>
+        <Badge variant="success">Area 0 Backbone</Badge>
+      </CardHeader>
+      <CardContent className="space-y-2 text-xs font-mono">
+        <div className="p-2 bg-secondary/50 rounded-lg border border-border space-y-1">
+          <div className="flex justify-between">
+            <span className="text-muted-foreground font-sans">Active Shortest Path:</span>
+            <span className="text-primary font-bold">{activeShortestPath.join(" → ")}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-muted-foreground font-sans">Total Path Cost:</span>
+            <span className="text-blue-400 font-bold">{totalCost}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-muted-foreground font-sans">Convergence State:</span>
+            <span className="text-emerald-400 font-semibold">SYNCHRONIZED (FULL)</span>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+export function BgpSummaryPanel() {
+  const protocolId = useSimulationStore((s) => s.protocolId);
+  const protocolState = useSimulationStore((s) => s.protocolState);
+
+  if (protocolId !== "bgp") return null;
+
+  const activeBestPath = (protocolState.activeBestPath as string[]) ?? ["R1", "R2", "R4"];
+  const bestEval = protocolState.bestPathEvaluationR1 as
+    | { winningReason?: string }
+    | undefined;
+
+  return (
+    <Card>
+      <CardHeader className="pb-2 flex flex-row items-center justify-between">
+        <CardTitle className="text-sm">BGP Inter-Domain Peering</CardTitle>
+        <Badge variant="success">Established</Badge>
+      </CardHeader>
+      <CardContent className="space-y-2 text-xs font-mono">
+        <div className="p-2 bg-secondary/50 rounded-lg border border-border space-y-1">
+          <div className="flex justify-between">
+            <span className="text-muted-foreground font-sans">Selected Policy Path:</span>
+            <span className="text-emerald-400 font-bold">
+              {activeBestPath.length > 0 ? activeBestPath.join(" → ") : "None"}
+            </span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-muted-foreground font-sans">Decision Factor:</span>
+            <span className="text-primary">{bestEval?.winningReason ?? "LOCAL_PREF Priority"}</span>
+          </div>
         </div>
       </CardContent>
     </Card>
