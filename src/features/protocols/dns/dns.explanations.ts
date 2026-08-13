@@ -57,12 +57,15 @@ export function getDnsEventExplanation(
   eventType: string,
   recordType?: string,
   rcode?: string,
-  _mode: "simple" | "advanced" = "simple"
+  mode: "simple" | "advanced" = "simple"
 ): DnsExplanation {
+  const isAdvanced = mode === "advanced";
   if (rcode === "NXDOMAIN") {
     return {
       title: "DNS NXDOMAIN (Non-Existent Domain)",
-      summary: "The queried hostname does not exist in the authoritative nameserver's zone database.",
+      summary: isAdvanced
+        ? "The authoritative nameserver returned RCODE 3 indicating domain name does not exist in zone records."
+        : "The queried hostname does not exist in the authoritative nameserver's zone database.",
       rfcReference: "RFC 1035 §4.1.1 (RCODE 3 - Name Error)",
       technicalDetails: [
         "RCODE: 3 (NXDOMAIN / Name Error).",

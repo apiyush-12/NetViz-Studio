@@ -288,7 +288,15 @@ export function AppSidebar() {
 }
 
 // ─── App Header ───────────────────────────────────────────────────────────────
-export function AppHeader({ title, description }: { title: string; description?: string }) {
+export function AppHeader({
+  title,
+  description,
+  action,
+}: {
+  title: string;
+  description?: string;
+  action?: React.ReactNode;
+}) {
   const { isLoaded, isSignedIn, user } = useSafeUser();
 
   return (
@@ -299,6 +307,7 @@ export function AppHeader({ title, description }: { title: string; description?:
         {description && <p className="text-sm text-muted-foreground mt-0.5">{description}</p>}
       </div>
       <div className="flex items-center gap-3">
+        {action}
         {isLoaded && isSignedIn && user ? (
           <SafeUserButton appearance={{ elements: { avatarBox: "h-8 w-8 rounded-full border border-primary/40" } }} />
         ) : (

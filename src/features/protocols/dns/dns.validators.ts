@@ -10,8 +10,8 @@ export interface DnsValidationError {
 
 export function validateDnsConfiguration(
   nodes: DnsNode[],
-  _queryHostname: string,
-  _resolvedRecords: DnsResourceRecord[]
+  queryHostname?: string,
+  resolvedRecords?: DnsResourceRecord[]
 ): DnsValidationError[] {
   const errors: DnsValidationError[] = [];
 
@@ -36,6 +36,28 @@ export function validateDnsConfiguration(
       title: "No Authoritative Nameserver",
       message: "Network contains no authoritative nameserver hosting domain zone files.",
       recommendation: "Configure authoritative nameservers for the domain zone.",
+    });
+  }
+
+  // Check 3: Query hostname validity
+  if (queryHostname && !queryHostname.includes(".")) {
+    errors.push({
+      id: "unqualified-hostname",
+      severity: "info",
+      title: "Unqualified Domain Name",
+      message: `Query "${queryHostname}" is a single-label domain without a TLD.`,
+      recommendation: "Use a Fully Qualified Domain Name (FQDN) like example.com or app.internal.net.",
+    });
+  }
+
+  // Check 4: Unresolved records notice
+  if (queryHostname && resolvedRecords && resolvedRecords.length === 0) {
+    errors.push({
+      id: "unresolved-domain",
+      severity: "warning",
+      title: "Unresolved DNS Query",
+      message: `No active resource records matched query hostname "${queryHostname}".`,
+      recommendation: "Verify that authoritative nameservers host valid A, AAAA, or CNAME records for this zone.",
     });
   }
 

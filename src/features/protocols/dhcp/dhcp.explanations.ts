@@ -56,12 +56,15 @@ export const DHCP_EXPLANATION_SECTIONS: ExplanationSection[] = [
 export function getDhcpEventExplanation(
   eventType: string,
   messageType?: string,
-  _mode: "simple" | "advanced" = "simple"
+  mode: "simple" | "advanced" = "simple"
 ): DhcpExplanation {
+  const isAdvanced = mode === "advanced";
   if (messageType === "DHCPDISCOVER") {
     return {
       title: "DHCPDISCOVER (Client Broadcast)",
-      summary: "The client boots with no IP address and sends a broadcast message onto the local Ethernet segment to discover available DHCP servers.",
+      summary: isAdvanced
+        ? "The client initializes without an assigned IP, transmitting an all-ones broadcast with DHCP Option 53 = 1."
+        : "The client boots with no IP address and sends a broadcast message onto the local Ethernet segment to discover available DHCP servers.",
       rfcReference: "RFC 2131 §3.1 (Client-Server Protocol)",
       technicalDetails: [
         "Source IP: 0.0.0.0 (Unspecified address before configuration)",

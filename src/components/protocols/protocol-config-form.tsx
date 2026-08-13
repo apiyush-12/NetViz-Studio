@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { RotateCcw, RefreshCw, Check } from "lucide-react";
+import { RotateCcw, Check } from "lucide-react";
 import { useSimulationStore } from "@/features/simulation/simulation-store";
 import { getProtocol, getImplementedProtocols } from "@/features/protocols/registry";
 import { Label, Input, Button, Switch, Badge } from "@/components/ui";

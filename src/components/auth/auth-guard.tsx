@@ -33,7 +33,6 @@ export function AuthGuard({ children }: AuthGuardProps) {
     if (isClerkConfigured && isLoaded && !isSignedIn) {
       router.replace("/");
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoaded, isSignedIn, router]);
 
   // Clerk configured — loading state
