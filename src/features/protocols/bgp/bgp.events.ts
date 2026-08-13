@@ -75,7 +75,7 @@ export function buildBgpSimulationSequence(
   ) => {
     const base = createEventBase(seq++, time, "bgp");
     time += 350;
-    if (pkt) packets.push(pkt);
+    if (pkt && !packets.some((p) => p.id === pkt.id)) packets.push(pkt);
     events.push({
       ...base,
       type,

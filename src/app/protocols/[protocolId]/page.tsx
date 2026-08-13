@@ -17,6 +17,8 @@ import { Tabs, Badge } from "@/components/ui";
 import Link from "next/link";
 import { OspfVisualizer } from "@/components/protocols/ospf/ospf-visualizer";
 import { BgpVisualizer } from "@/components/protocols/bgp/bgp-visualizer";
+import { DhcpVisualizer } from "@/components/protocols/dhcp/dhcp-visualizer";
+import { DnsVisualizer } from "@/components/protocols/dns/dns-visualizer";
 
 function ProtocolDetailContent() {
   const params = useParams();
@@ -56,6 +58,14 @@ function ProtocolDetailContent() {
 
   if (protocolId === "bgp") {
     return <BgpVisualizer />;
+  }
+
+  if (protocolId === "dhcp") {
+    return <DhcpVisualizer />;
+  }
+
+  if (protocolId === "dns") {
+    return <DnsVisualizer />;
   }
 
   return (

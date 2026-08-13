@@ -6,14 +6,25 @@ import { SimulationControls } from "@/components/simulation/simulation-controls"
 import { EventTimeline } from "@/components/simulation/event-timeline";
 import { Tabs, Badge, Card, CardHeader, CardTitle, CardContent } from "@/components/ui";
 import { BgpTopology } from "./bgp-topology";
-import { BgpPeerTable } from "./bgp-peer-table";
 import { BgpRouteTable } from "./bgp-route-table";
+import { BgpPeerTable } from "./bgp-peer-table";
 import { BgpBestPathPanel } from "./bgp-best-path-panel";
 import { BgpConfigPanel } from "./bgp-config-panel";
 import { BgpEventDetails } from "./bgp-event-details";
-import type { BgpRouter, BgpLink, AutonomousSystem, BgpBestPathComparisonStep, BgpRoute } from "@/features/protocols/bgp/bgp.types";
+import { OspfBgpComparisonModal } from "@/components/protocols/comparison/ospf-bgp-comparison-modal";
+import type {
+  BgpRouter,
+  BgpLink,
+  AutonomousSystem,
+  BgpRoute,
+  BgpBestPathComparisonStep,
+} from "@/features/protocols/bgp/bgp.types";
 import type { BgpValidationError } from "@/features/protocols/bgp/bgp.validators";
-import { DEFAULT_BGP_ROUTERS, DEFAULT_BGP_LINKS, DEFAULT_AUTONOMOUS_SYSTEMS } from "@/features/protocols/bgp/bgp.defaults";
+import {
+  DEFAULT_BGP_ROUTERS,
+  DEFAULT_BGP_LINKS,
+  DEFAULT_AUTONOMOUS_SYSTEMS,
+} from "@/features/protocols/bgp/bgp.defaults";
 
 export function BgpVisualizer() {
   const loadProtocol = useSimulationStore((s) => s.loadProtocol);
@@ -36,16 +47,22 @@ export function BgpVisualizer() {
   }, [loadProtocol]);
 
   // Extract BGP state from simulator initialState
-  const routers: BgpRouter[] = (protocolState.routers as BgpRouter[]) ?? DEFAULT_BGP_ROUTERS;
-  const links: BgpLink[] = (protocolState.links as BgpLink[]) ?? DEFAULT_BGP_LINKS;
-  const autonomousSystems: AutonomousSystem[] = (protocolState.autonomousSystems as AutonomousSystem[]) ?? DEFAULT_AUTONOMOUS_SYSTEMS;
+  const rawRouters = protocolState.routers as BgpRouter[] | undefined;
+  const routers: BgpRouter[] = Array.isArray(rawRouters) && rawRouters.length > 0 ? rawRouters : DEFAULT_BGP_ROUTERS;
+
+  const rawLinks = protocolState.links as BgpLink[] | undefined;
+  const links: BgpLink[] = Array.isArray(rawLinks) && rawLinks.length > 0 ? rawLinks : DEFAULT_BGP_LINKS;
+
+  const rawAs = protocolState.autonomousSystems as AutonomousSystem[] | undefined;
+  const autonomousSystems: AutonomousSystem[] = Array.isArray(rawAs) && rawAs.length > 0 ? rawAs : DEFAULT_AUTONOMOUS_SYSTEMS;
+
   const topologyPreset = (protocolState.topologyPreset as string) ?? "multi-homed";
   const bestPathEvalR1 = protocolState.bestPathEvaluationR1 as
     | {
-        bestRoute: BgpRoute | null;
-        comparisonSteps: BgpBestPathComparisonStep[];
-        winningReason: string;
-      }
+      bestRoute: BgpRoute | null;
+      comparisonSteps: BgpBestPathComparisonStep[];
+      winningReason: string;
+    }
     | undefined;
   const validationErrors: BgpValidationError[] = (protocolState.validationErrors as BgpValidationError[]) ?? [];
   const activeBestPath = (protocolState.activeBestPath as string[]) ?? ["R1", "R2", "R4"];
@@ -55,7 +72,12 @@ export function BgpVisualizer() {
     ? packets.find((p) => p.id === activeEvent.packetId) ?? null
     : null;
 
-  const selectedRouter = routers.find((r) => r.nodeId === selectedRouterId) ?? routers[0];
+  const selectedRouter: BgpRouter =
+    routers.find((r) => r.nodeId === selectedRouterId) ?? routers[0] ?? DEFAULT_BGP_ROUTERS[0];
+
+  const configuredPeers = Array.isArray(selectedRouter?.peers) ? selectedRouter.peers : [];
+  const bgpTableEntries = Array.isArray(selectedRouter?.bgpTable) ? selectedRouter.bgpTable : [];
+  const advertisedPrefixes = Array.isArray(selectedRouter?.advertisedPrefixes) ? selectedRouter.advertisedPrefixes : [];
 
   // Handler for topology preset & condition modification
   const handleSelectTopologyPreset = (preset: "multi-homed" | "tier1-hub" | "triangle" | "ibgp-ebgp") => {
@@ -71,21 +93,21 @@ export function BgpVisualizer() {
     field: "localPreference" | "med" | "asPathPrependCount" | "remoteAsn",
     value: number
   ) => {
-    const updatedRouters = routers.map((r) => {
-      if (r.nodeId === routerNodeId) {
-        const updatedPeers = r.peers.map((p) => (p.id === peerId ? { ...p, [field]: value } : p));
-        return { ...r, peers: updatedPeers };
-      }
-      return r;
+    loadProtocol("bgp", {
+      topologyPreset,
+      peerPolicyOverride: {
+        peerId,
+        attribute: field === "asPathPrependCount" ? "asPathPrepend" : field,
+        value,
+      },
     });
-    loadProtocol("bgp", { routers: updatedRouters });
   };
 
   const handleToggleLink = (linkId: string) => {
-    const updatedLinks = links.map((l) =>
-      l.id === linkId ? { ...l, enabled: !l.enabled, status: !l.enabled ? ("up" as const) : ("down" as const) } : l
-    );
-    loadProtocol("bgp", { links: updatedLinks });
+    loadProtocol("bgp", {
+      topologyPreset,
+      toggledLinkId: linkId,
+    });
   };
 
   const handleSelectScenario = (scenario: string) => {
@@ -101,35 +123,36 @@ export function BgpVisualizer() {
             BGP-4
           </Badge>
           <div>
-            <h2 className="text-sm font-semibold">Border Gateway Protocol (Policy-Driven Path Routing)</h2>
+            <h2 className="text-sm font-semibold">Border Gateway Protocol Studio (Inter-Domain)</h2>
             <p className="text-xs text-muted-foreground hidden sm:block">
-              Multi-topology autonomous system selection, LOCAL_PREF, AS_PATH loop prevention, and MED comparisons
+              Multi-AS topologies, BGP decision algorithm, path attributes, policy filtering, and convergence
             </p>
           </div>
         </div>
 
-        {/* Real Time vs Simulation Mode Toggle */}
-        <div className="flex items-center gap-1 bg-secondary/70 p-1 rounded-lg border border-border">
-          <button
-            onClick={() => setSimulationMode("realtime")}
-            className={`px-3 py-1 text-xs rounded-md font-medium transition-colors cursor-pointer ${
-              simulationMode === "realtime"
+        {/* Real Time vs Simulation Mode Toggle & Comparison Modal */}
+        <div className="flex items-center gap-2">
+          <OspfBgpComparisonModal />
+          <div className="flex items-center gap-1 bg-secondary/70 p-1 rounded-lg border border-border">
+            <button
+              onClick={() => setSimulationMode("realtime")}
+              className={`px-3 py-1 text-xs rounded-md font-medium transition-colors cursor-pointer ${simulationMode === "realtime"
                 ? "bg-primary text-primary-foreground shadow-sm"
                 : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            Real Time
-          </button>
-          <button
-            onClick={() => setSimulationMode("simulation")}
-            className={`px-3 py-1 text-xs rounded-md font-medium transition-colors cursor-pointer ${
-              simulationMode === "simulation"
+                }`}
+            >
+              Real Time
+            </button>
+            <button
+              onClick={() => setSimulationMode("simulation")}
+              className={`px-3 py-1 text-xs rounded-md font-medium transition-colors cursor-pointer ${simulationMode === "simulation"
                 ? "bg-primary text-primary-foreground shadow-sm"
                 : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            Simulation
-          </button>
+                }`}
+            >
+              Simulation
+            </button>
+          </div>
         </div>
       </div>
 
@@ -143,15 +166,12 @@ export function BgpVisualizer() {
               links={links}
               autonomousSystems={autonomousSystems}
               topologyPreset={topologyPreset}
-              selectedRouterId={selectedRouterId}
               activeBestPath={activeBestPath}
+              selectedRouterId={selectedRouter?.nodeId ?? "R1"}
               activeEvent={activeEvent}
               activePacket={activePacket}
               labelMode={labelMode}
-              onSelectRouter={(rId) => {
-                setSelectedRouterId(rId);
-                setSelectedRouteId(null);
-              }}
+              onSelectRouter={setSelectedRouterId}
               onToggleLabelMode={() => setLabelMode((m) => (m === "simple" ? "technical" : "simple"))}
               onSelectFailureScenario={handleSelectScenario}
               onSelectTopologyPreset={handleSelectTopologyPreset}
@@ -167,19 +187,15 @@ export function BgpVisualizer() {
               onValueChange={setActiveTab}
               tabs={[
                 { id: "events", label: "Events Timeline" },
-                { id: "peers", label: "Peers & FSM" },
                 { id: "bgpTable", label: "BGP Table (RIB)" },
-                { id: "bestPath", label: "Best-Path Decision" },
-                { id: "routes", label: "IP Routing Table" },
-                { id: "config", label: "AS Topology & Policy" },
+                { id: "peers", label: "Peering Sessions (FSM)" },
+                { id: "bestPath", label: "Decision Algorithm" },
+                { id: "config", label: "Topology & Conditions" },
               ]}
             />
 
             <div className="min-h-[220px]">
               {activeTab === "events" && <EventTimeline />}
-              {activeTab === "peers" && (
-                <BgpPeerTable router={selectedRouter} />
-              )}
               {activeTab === "bgpTable" && (
                 <BgpRouteTable
                   router={selectedRouter}
@@ -187,63 +203,15 @@ export function BgpVisualizer() {
                   onSelectRoute={setSelectedRouteId}
                 />
               )}
-              {activeTab === "bestPath" && bestPathEvalR1 && (
-                <BgpBestPathPanel
-                  comparisonSteps={bestPathEvalR1.comparisonSteps ?? []}
-                  winningReason={bestPathEvalR1.winningReason ?? "Optimal path selected"}
-                  bestRouteName={
-                    bestPathEvalR1.bestRoute?.nextHop === "192.0.2.2"
-                      ? "Path A (via AS 65002)"
-                      : bestPathEvalR1.bestRoute?.nextHop === "192.0.2.6"
-                        ? "Path B (via AS 65003)"
-                        : "None (Prefix Withdrawn)"
-                  }
-                />
+              {activeTab === "peers" && (
+                <BgpPeerTable router={selectedRouter} allRouters={routers} />
               )}
-              {activeTab === "routes" && (
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm">
-                      {selectedRouter.name} (AS {selectedRouter.localAsn}) — IP Routing Table (FIB)
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    {selectedRouter.routingTable.length === 0 ? (
-                      <p className="text-xs text-muted-foreground py-2">
-                        No active BGP routes installed in IP forwarding table.
-                      </p>
-                    ) : (
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-xs font-mono">
-                          <thead>
-                            <tr className="border-b border-border text-muted-foreground text-left font-sans">
-                              <th className="py-2">Protocol Source</th>
-                              <th className="py-2">Destination Prefix</th>
-                              <th className="py-2">Next Hop IP</th>
-                              <th className="py-2">AS_PATH</th>
-                              <th className="py-2">Metric</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-border/40">
-                            {selectedRouter.routingTable.map((route, i) => (
-                              <tr key={i} className="hover:bg-accent/40">
-                                <td className="py-2">
-                                  <Badge variant="default" className="text-[10px]">
-                                    {route.source}
-                                  </Badge>
-                                </td>
-                                <td className="py-2 font-medium text-foreground">{route.destination}</td>
-                                <td className="py-2 text-primary">{route.nextHop}</td>
-                                <td className="py-2 text-muted-foreground">{route.asPath.join(" ")}</td>
-                                <td className="py-2 text-muted-foreground">{route.metric}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
+              {activeTab === "bestPath" && (
+                <BgpBestPathPanel
+                  comparisonSteps={bestPathEvalR1?.comparisonSteps ?? []}
+                  winningReason={bestPathEvalR1?.winningReason ?? "Optimal path selected."}
+                  bestRouteName={bestPathEvalR1?.bestRoute?.prefix ?? "198.51.100.0/24"}
+                />
               )}
               {activeTab === "config" && (
                 <BgpConfigPanel
@@ -261,14 +229,14 @@ export function BgpVisualizer() {
           </div>
         </div>
 
-        {/* Right Column: Node Inspector & Event Explanations */}
+        {/* Right Column: Router Inspector & Event Explanations */}
         <div className="flex flex-col gap-3 min-h-0">
           <Card className="h-full flex flex-col">
             <CardHeader className="pb-2 border-b border-border">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-sm">Router Inspector: {selectedRouter.name}</CardTitle>
+                <CardTitle className="text-sm">BGP Speaker: {selectedRouter?.name ?? "Router"}</CardTitle>
                 <Badge variant="outline" className="font-mono text-[10px]">
-                  AS {selectedRouter.localAsn} · {selectedRouter.routerId}
+                  AS {selectedRouter?.localAsn ?? 65001} · {selectedRouter?.nodeId ?? "R1"}
                 </Badge>
               </div>
             </CardHeader>
@@ -288,27 +256,27 @@ export function BgpVisualizer() {
                   <div className="bg-secondary/40 p-2.5 rounded-lg border border-border space-y-1.5">
                     <div className="flex justify-between">
                       <span className="text-muted-foreground font-sans">Node ID:</span>
-                      <span className="font-semibold">{selectedRouter.nodeId}</span>
+                      <span className="font-semibold">{selectedRouter?.nodeId ?? "R1"}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground font-sans">Local ASN:</span>
-                      <span className="text-primary font-semibold">AS {selectedRouter.localAsn}</span>
+                      <span className="text-primary font-semibold">AS {selectedRouter?.localAsn ?? 65001}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground font-sans">BGP Router ID:</span>
-                      <span>{selectedRouter.routerId}</span>
+                      <span>{selectedRouter?.routerId ?? "1.1.1.1"}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground font-sans">BGP Session Status:</span>
-                      <span className="text-emerald-400 font-semibold">{selectedRouter.state}</span>
+                      <span className="text-emerald-400 font-semibold">{selectedRouter?.state ?? "Established"}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground font-sans">Configured Peers:</span>
-                      <span>{selectedRouter.peers.length}</span>
+                      <span>{configuredPeers.length}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground font-sans">Prefixes in RIB:</span>
-                      <span>{selectedRouter.bgpTable.length}</span>
+                      <span>{bgpTableEntries.length}</span>
                     </div>
                   </div>
                 </div>
@@ -316,10 +284,10 @@ export function BgpVisualizer() {
 
               {rightInspectorTab === "networks" && (
                 <div className="space-y-2 text-xs">
-                  {selectedRouter.advertisedPrefixes.length === 0 ? (
+                  {advertisedPrefixes.length === 0 ? (
                     <p className="text-muted-foreground p-2">No prefixes locally originated by this AS.</p>
                   ) : (
-                    selectedRouter.advertisedPrefixes.map((p) => (
+                    advertisedPrefixes.map((p) => (
                       <div key={p} className="p-2.5 rounded-lg border border-border bg-secondary/30 flex justify-between items-center font-mono">
                         <span className="text-primary font-medium">{p}</span>
                         <Badge variant="success" className="text-[10px]">ORIGINATED (IGP)</Badge>

@@ -10,45 +10,48 @@ import {
   AlertTriangle,
   Tag,
   Network,
+  Monitor,
+  Server,
+  Globe,
+  Database,
+  Layers,
 } from "lucide-react";
 import { Button, Badge } from "@/components/ui";
 import { cn } from "@/lib/utils";
-import type { BgpRouter, BgpLink, AutonomousSystem } from "@/features/protocols/bgp/bgp.types";
+import type { DnsNode, DnsLink, DnsResourceRecord } from "@/features/protocols/dns/dns.types";
 import type { Packet, SimulationEvent } from "@/features/simulation/simulation-types";
-import { BgpRouterNode } from "./bgp-router-node";
-import { AutonomousSystemRegion } from "./autonomous-system-region";
 import { useSimulationStore } from "@/features/simulation/simulation-store";
 
-interface BgpTopologyProps {
-  routers: BgpRouter[];
-  links: BgpLink[];
-  autonomousSystems?: AutonomousSystem[];
+interface DnsTopologyProps {
+  nodes: DnsNode[];
+  links: DnsLink[];
+  queryHostname: string;
+  resolvedRecords: DnsResourceRecord[];
   topologyPreset?: string;
-  selectedRouterId: string | null;
-  activeBestPath: string[];
+  selectedNodeId: string | null;
   activeEvent?: SimulationEvent | null;
   activePacket: Packet | null;
   labelMode: "simple" | "technical";
-  onSelectRouter: (routerId: string) => void;
+  onSelectNode: (nodeId: string) => void;
   onToggleLabelMode: () => void;
   onSelectFailureScenario: (scenario: string) => void;
-  onSelectTopologyPreset?: (preset: "multi-homed" | "tier1-hub" | "triangle" | "ibgp-ebgp") => void;
+  onSelectTopologyPreset?: (preset: "iterative-hierarchy" | "recursive-caching" | "cname-chain" | "split-brain-lan") => void;
 }
 
-export function BgpTopology({
-  routers,
+export function DnsTopology({
+  nodes,
   links,
-  autonomousSystems = [],
-  topologyPreset = "multi-homed",
-  selectedRouterId,
-  activeBestPath,
+  queryHostname,
+  resolvedRecords,
+  topologyPreset = "iterative-hierarchy",
+  selectedNodeId,
   activePacket,
   labelMode,
-  onSelectRouter,
+  onSelectNode,
   onToggleLabelMode,
   onSelectFailureScenario,
   onSelectTopologyPreset,
-}: BgpTopologyProps) {
+}: DnsTopologyProps) {
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [showFailMenu, setShowFailMenu] = useState(false);
@@ -70,10 +73,12 @@ export function BgpTopology({
   };
 
   const nodeMap = new Map<string, { x: number; y: number }>();
-  routers.forEach((r) => nodeMap.set(r.nodeId, r.position));
+  nodes.forEach((n) => nodeMap.set(n.id, n.position));
 
   const sourcePos = activePacket ? nodeMap.get(activePacket.source) : null;
   const destPos = activePacket ? nodeMap.get(activePacket.destination) : null;
+
+  const firstAnswer = resolvedRecords[resolvedRecords.length - 1];
 
   return (
     <div className="relative w-full h-full min-h-[480px] bg-slate-950 grid-bg rounded-xl border border-border overflow-hidden select-none flex flex-col">
@@ -83,20 +88,20 @@ export function BgpTopology({
         <div className="flex items-center gap-1.5 pointer-events-auto bg-slate-900/90 p-1 rounded-lg border border-border backdrop-blur">
           <div className="flex items-center gap-1 px-2 py-0.5 text-xs text-muted-foreground font-mono">
             <Network className="h-3.5 w-3.5 text-primary" />
-            <span className="font-semibold text-foreground">Topology:</span>
+            <span className="font-semibold text-foreground">Hierarchy:</span>
           </div>
 
           {[
-            { id: "multi-homed", label: "Dual-Homed 4AS" },
-            { id: "tier1-hub", label: "Tier-1 Hub 5AS" },
-            { id: "triangle", label: "Triangle 3AS" },
-            { id: "ibgp-ebgp", label: "iBGP+eBGP" },
+            { id: "iterative-hierarchy", label: "Iterative Hierarchy" },
+            { id: "recursive-caching", label: "Cache HIT / MISS" },
+            { id: "cname-chain", label: "CNAME Chain" },
+            { id: "split-brain-lan", label: "Split-Horizon" },
           ].map((preset) => (
             <button
               key={preset.id}
               onClick={() =>
                 onSelectTopologyPreset?.(
-                  preset.id as "multi-homed" | "tier1-hub" | "triangle" | "ibgp-ebgp"
+                  preset.id as "iterative-hierarchy" | "recursive-caching" | "cname-chain" | "split-brain-lan"
                 )
               }
               className={cn(
@@ -111,10 +116,10 @@ export function BgpTopology({
           ))}
         </div>
 
-        {/* Right Tools (Best-path summary, Label Mode, Failure Injection) */}
+        {/* Right Tools (Resolved answer pill, Label Mode, Failure Injection) */}
         <div className="flex items-center gap-1.5 pointer-events-auto bg-slate-900/90 p-1 rounded-lg border border-border backdrop-blur">
           <Badge variant="outline" className="font-mono text-[11px] text-emerald-400 border-emerald-500/40">
-            Selected Path: {activeBestPath.length > 0 ? activeBestPath.join(" → ") : "None (Withdrawn)"}
+            {firstAnswer ? `${queryHostname} → ${firstAnswer.value}` : `${queryHostname}: Querying...`}
           </Badge>
 
           <Button
@@ -145,43 +150,31 @@ export function BgpTopology({
                   onClick={() => { onSelectFailureScenario("none"); setShowFailMenu(false); }}
                   className="px-2.5 py-1.5 text-left rounded hover:bg-accent text-muted-foreground hover:text-foreground cursor-pointer"
                 >
-                  ✓ Normal Condition (LOCAL_PREF 200 vs 100)
+                  ✓ Standard Iterative Query (A Record)
                 </button>
                 <button
-                  onClick={() => { onSelectFailureScenario("as_path_prepend_as65002"); setShowFailMenu(false); }}
+                  onClick={() => { onSelectFailureScenario("cache_hit"); setShowFailMenu(false); }}
+                  className="px-2.5 py-1.5 text-left rounded hover:bg-accent text-emerald-400 cursor-pointer"
+                >
+                  ⚡ Local Resolver Cache HIT (0 Hops)
+                </button>
+                <button
+                  onClick={() => { onSelectFailureScenario("nxdomain_not_found"); setShowFailMenu(false); }}
                   className="px-2.5 py-1.5 text-left rounded hover:bg-accent text-amber-400 cursor-pointer"
                 >
-                  ⚡ AS-Path Prepend on AS 65002 (3x)
+                  ⚠️ Non-Existent Domain (NXDOMAIN)
                 </button>
                 <button
-                  onClick={() => { onSelectFailureScenario("break_as65001_as65002"); setShowFailMenu(false); }}
+                  onClick={() => { onSelectFailureScenario("cname_resolution"); setShowFailMenu(false); }}
+                  className="px-2.5 py-1.5 text-left rounded hover:bg-accent text-primary cursor-pointer"
+                >
+                  ⚡ CNAME Alias Chain Resolution
+                </button>
+                <button
+                  onClick={() => { onSelectFailureScenario("authoritative_timeout_servfail"); setShowFailMenu(false); }}
                   className="px-2.5 py-1.5 text-left rounded hover:bg-accent text-destructive cursor-pointer"
                 >
-                  ✕ Break Peering AS 65001 ↔ AS 65002
-                </button>
-                <button
-                  onClick={() => { onSelectFailureScenario("tier1_failover"); setShowFailMenu(false); }}
-                  className="px-2.5 py-1.5 text-left rounded hover:bg-accent text-destructive cursor-pointer"
-                >
-                  ✕ Transit Link Failover (Primary Down)
-                </button>
-                <button
-                  onClick={() => { onSelectFailureScenario("withdraw_prefix"); setShowFailMenu(false); }}
-                  className="px-2.5 py-1.5 text-left rounded hover:bg-accent text-amber-400 cursor-pointer"
-                >
-                  ⚠️ Withdraw Prefix 203.0.113.0/24
-                </button>
-                <button
-                  onClick={() => { onSelectFailureScenario("invalid_remote_asn"); setShowFailMenu(false); }}
-                  className="px-2.5 py-1.5 text-left rounded hover:bg-accent text-amber-400 cursor-pointer"
-                >
-                  ⚠️ Remote ASN Mismatch Error
-                </button>
-                <button
-                  onClick={() => { onSelectFailureScenario("med_influence"); setShowFailMenu(false); }}
-                  className="px-2.5 py-1.5 text-left rounded hover:bg-accent text-amber-400 cursor-pointer"
-                >
-                  ⚡ MED Metric Influence (50 vs 200)
+                  ✕ Nameserver Timeout → SERVFAIL
                 </button>
               </div>
             )}
@@ -208,8 +201,7 @@ export function BgpTopology({
       {/* Main SVG Canvas */}
       <div className="flex-1 w-full h-full cursor-grab active:cursor-grabbing">
         <svg
-          viewBox="10 50 540 440"
-          preserveAspectRatio="xMidYMid meet"
+          viewBox="0 0 560 560"
           className="w-full h-full"
           style={{
             transform: `scale(${zoom}) translate(${pan.x}px, ${pan.y}px)`,
@@ -217,105 +209,93 @@ export function BgpTopology({
             transition: "transform 0.15s ease-out",
           }}
         >
-          {/* Dynamic Autonomous System Regions */}
-          {autonomousSystems.map((asInfo) => (
-            <AutonomousSystemRegion
-              key={asInfo.asn}
-              asInfo={asInfo}
-              x={asInfo.x ?? 30}
-              y={asInfo.y ?? 200}
-              width={asInfo.width ?? 140}
-              height={asInfo.height ?? 160}
-            />
-          ))}
-
-          {/* eBGP / iBGP Peering Links */}
+          {/* Delegation Links */}
           {links.map((link) => {
-            const src = nodeMap.get(link.sourceRouterId);
-            const dst = nodeMap.get(link.targetRouterId);
+            const src = nodeMap.get(link.sourceNodeId);
+            const dst = nodeMap.get(link.targetNodeId);
             if (!src || !dst) return null;
 
-            const isDown = !link.enabled || link.status === "down";
-            const isLinkInBestPath =
-              activeBestPath.includes(link.sourceRouterId) &&
-              activeBestPath.includes(link.targetRouterId) &&
-              Math.abs(
-                activeBestPath.indexOf(link.sourceRouterId) -
-                activeBestPath.indexOf(link.targetRouterId)
-              ) === 1;
-
-            const midX = (src.x + dst.x) / 2;
-            const midY = (src.y + dst.y) / 2;
-
             return (
-              <g key={link.id} className="transition-all duration-300">
-                {/* Best Path Glow Underlay */}
-                {isLinkInBestPath && !isDown && (
-                  <line
-                    x1={src.x}
-                    y1={src.y}
-                    x2={dst.x}
-                    y2={dst.y}
-                    className="stroke-emerald-400/40 stroke-[8px] animate-pulse"
-                  />
-                )}
-
-                {/* Base Link Line */}
-                <line
-                  x1={src.x}
-                  y1={src.y}
-                  x2={dst.x}
-                  y2={dst.y}
-                  className={cn(
-                    "transition-all duration-200 stroke-2",
-                    isDown
-                      ? "stroke-destructive/60 stroke-dasharray-[6,4]"
-                      : isLinkInBestPath
-                        ? "stroke-emerald-400 stroke-[3px]"
-                        : "stroke-slate-700 hover:stroke-slate-500"
-                  )}
-                />
-
-                {/* Peering Label Badge */}
-                <g transform={`translate(${midX}, ${midY})`}>
-                  <rect
-                    x="-32"
-                    y="-10"
-                    width="64"
-                    height="20"
-                    rx="4"
-                    fill="rgba(15, 23, 42, 0.9)"
-                    stroke={isDown ? "rgba(239, 68, 68, 0.6)" : isLinkInBestPath ? "rgba(16, 185, 129, 0.8)" : "rgba(100, 116, 139, 0.4)"}
-                    strokeWidth="1"
-                  />
-                  <text
-                    textAnchor="middle"
-                    y="4"
-                    className={cn(
-                      "text-[9px] font-mono font-bold",
-                      isDown ? "fill-destructive" : isLinkInBestPath ? "fill-emerald-400" : "fill-muted-foreground"
-                    )}
-                  >
-                    {isDown ? "DOWN" : isLinkInBestPath ? "BEST PATH" : "CANDIDATE"}
-                  </text>
-                </g>
-              </g>
+              <line
+                key={link.id}
+                x1={src.x}
+                y1={src.y}
+                x2={dst.x}
+                y2={dst.y}
+                className="stroke-slate-700 stroke-2 stroke-dashed hover:stroke-slate-500 transition-colors"
+              />
             );
           })}
 
-          {/* BGP Router Nodes */}
-          {routers.map((router) => {
-            const isSelected = selectedRouterId === router.nodeId;
-            const isInBestPath = activeBestPath.includes(router.nodeId);
+          {/* DNS Hierarchy Nodes */}
+          {nodes.map((node) => {
+            const isSelected = selectedNodeId === node.id;
+            const isRoot = node.type === "root-server";
+            const isTld = node.type === "tld-server";
+            const isAuth = node.type === "authoritative-server";
+            const isResolver = node.type === "resolver";
 
             return (
-              <BgpRouterNode
-                key={router.nodeId}
-                router={router}
-                isSelected={isSelected}
-                isInBestPath={isInBestPath}
-                onClick={() => onSelectRouter(router.nodeId)}
-              />
+              <g
+                key={node.id}
+                transform={`translate(${node.position.x}, ${node.position.y})`}
+                onClick={() => onSelectNode(node.id)}
+                className="cursor-pointer group"
+              >
+                {/* Node Glow on Selection */}
+                {isSelected && (
+                  <circle
+                    r="27"
+                    className="fill-primary/20 stroke-primary/50 stroke-2 animate-pulse"
+                  />
+                )}
+
+                {/* Node Circle Box */}
+                <circle
+                  r="21"
+                  className={cn(
+                    "transition-all duration-200 stroke-2",
+                    isRoot
+                      ? "fill-card stroke-amber-400"
+                      : isTld
+                        ? "fill-card stroke-purple-400"
+                        : isAuth
+                          ? "fill-card stroke-emerald-400"
+                          : isResolver
+                            ? "fill-card stroke-blue-400"
+                            : "fill-card stroke-border"
+                  )}
+                />
+
+                {/* Node Icon */}
+                <foreignObject x="-10" y="-10" width="20" height="20" className="pointer-events-none">
+                  <div className="flex items-center justify-center h-full text-foreground">
+                    {node.type === "client" && <Monitor className="h-4 w-4 text-slate-300" />}
+                    {isResolver && <Database className="h-4 w-4 text-blue-400" />}
+                    {isRoot && <Globe className="h-4 w-4 text-amber-400" />}
+                    {isTld && <Layers className="h-4 w-4 text-purple-400" />}
+                    {isAuth && <Server className="h-4 w-4 text-emerald-400" />}
+                  </div>
+                </foreignObject>
+
+                {/* Node Name Label */}
+                <text
+                  textAnchor="middle"
+                  y="33"
+                  className="fill-foreground text-[10.5px] font-semibold tracking-tight"
+                >
+                  {node.name}
+                </text>
+
+                {/* Node IP / Zone Badge */}
+                <text
+                  textAnchor="middle"
+                  y="43"
+                  className="fill-muted-foreground text-[8.5px] font-mono"
+                >
+                  {node.zone ? `Zone: ${node.zone}` : node.ipAddress}
+                </text>
+              </g>
             );
           })}
 
@@ -328,12 +308,16 @@ export function BgpTopology({
               transition={{ duration: reducedMotion ? 0 : 0.65, ease: "easeInOut" }}
             >
               <rect
-                x="-40"
+                x="-45"
                 y="-11"
-                width="80"
+                width="90"
                 height="22"
                 rx="11"
-                className="fill-emerald-600 stroke-white stroke-1 shadow-lg"
+                className={cn(
+                  "stroke-white stroke-1 shadow-lg",
+                  activePacket.label.toLowerCase().includes("response") || activePacket.label.toLowerCase().includes("answer") || activePacket.label.toLowerCase().includes("hit") ? "fill-emerald-600" :
+                    activePacket.label.toLowerCase().includes("error") ? "fill-rose-600" : "fill-blue-600"
+                )}
               />
               <text
                 textAnchor="middle"
@@ -347,15 +331,15 @@ export function BgpTopology({
         </svg>
       </div>
 
-      {/* Bottom Packet Capsule Tracker (Matching TCP/UDP Canvas) */}
+      {/* Bottom Packet Capsule Tracker */}
       <div className="p-2 border-t border-border/70 bg-slate-950/80 backdrop-blur flex items-center justify-between gap-2 text-xs">
         <span className="text-[11px] text-muted-foreground font-mono font-semibold shrink-0">
-          BGP Message Stream:
+          DNS Query Stream:
         </span>
         <div className="flex items-center gap-1.5 overflow-x-auto py-0.5">
-          {Array.from(new Map(packets.map((p) => [p.id, p])).values()).slice(0, 14).map((pkt, idx) => {
+          {Array.from(new Map(packets.map((p) => [p.id, p])).values()).map((pkt, idx) => {
             const delivered = visibleEvents.some(
-              (e) => e.packetId === pkt.id && (e.type === "packet-arrived" || e.type === "state-change" || e.type === "route-updated")
+              (e) => e.packetId === pkt.id && (e.type === "packet-arrived" || e.type === "route-calculated")
             );
             const isSelected = selectedPacketId === pkt.id;
 

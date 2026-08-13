@@ -32,7 +32,7 @@ export function OspfRouterNode({
       {/* Shortest Path Glow */}
       {isInShortestPath && (
         <circle
-          r="38"
+          r="29"
           className="fill-primary/20 stroke-primary/50 stroke-2 animate-pulse"
         />
       )}
@@ -40,32 +40,32 @@ export function OspfRouterNode({
       {/* Selected Halo */}
       {isSelected && (
         <circle
-          r="34"
+          r="26"
           className="fill-none stroke-blue-400 stroke-2 stroke-dasharray-[4,3] animate-spin-slow"
         />
       )}
 
       {/* Outer Node Circle */}
       <circle
-        r="28"
+        r="22"
         className={cn(
           "transition-all duration-200 stroke-2",
           isDown
             ? "fill-card stroke-destructive/60 opacity-60"
             : isSelected
-              ? "fill-slate-900 stroke-primary shadow-lg"
+              ? "fill-card stroke-primary shadow-lg"
               : isInShortestPath
-                ? "fill-slate-900 stroke-primary"
+                ? "fill-card stroke-primary"
                 : "fill-card stroke-border group-hover:stroke-primary/70"
         )}
       />
 
       {/* Icon */}
-      <foreignObject x="-14" y="-14" width="28" height="28" className="pointer-events-none">
+      <foreignObject x="-11" y="-11" width="22" height="22" className="pointer-events-none">
         <div className="flex items-center justify-center h-full w-full">
           <RouterIcon
             className={cn(
-              "h-5 w-5",
+              "h-4 w-4",
               isDown ? "text-destructive" : isInShortestPath ? "text-primary" : "text-blue-400"
             )}
           />
@@ -74,26 +74,26 @@ export function OspfRouterNode({
 
       {/* Router Name Label */}
       <text
-        y="-34"
+        y="-27"
         textAnchor="middle"
-        className="fill-foreground text-xs font-semibold tracking-wide"
+        className="fill-foreground text-[11px] font-semibold tracking-wide"
       >
         {router.name}
       </text>
 
       {/* Router ID & State Badges */}
       <text
-        y="42"
+        y="33"
         textAnchor="middle"
-        className="fill-muted-foreground text-[10px] font-mono"
+        className="fill-muted-foreground text-[9px] font-mono"
       >
         RID: {router.routerId}
       </text>
       <text
-        y="54"
+        y="43"
         textAnchor="middle"
         className={cn(
-          "text-[9px] font-mono font-medium",
+          "text-[8.5px] font-mono font-medium",
           isDown
             ? "fill-destructive"
             : router.state === "Full"

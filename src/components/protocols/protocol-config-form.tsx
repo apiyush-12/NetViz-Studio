@@ -1,12 +1,15 @@
 "use client";
 
 import Link from "next/link";
+import { RotateCcw, RefreshCw, Check } from "lucide-react";
 import { useSimulationStore } from "@/features/simulation/simulation-store";
 import { getProtocol, getImplementedProtocols } from "@/features/protocols/registry";
 import { Label, Input, Button, Switch, Badge } from "@/components/ui";
-import { tcpConfigSchema, defaultTcpConfig } from "@/features/protocols/tcp/tcp.config";
-import { udpConfigSchema, defaultUdpConfig } from "@/features/protocols/udp/udp.config";
-import { ProtocolComparisonModal } from "./comparison/protocol-comparison-modal";
+import { defaultTcpConfig } from "@/features/protocols/tcp/tcp.config";
+import { defaultUdpConfig } from "@/features/protocols/udp/udp.config";
+import { TcpUdpComparisonModal } from "./comparison/tcp-udp-comparison-modal";
+import { OspfBgpComparisonModal } from "./comparison/ospf-bgp-comparison-modal";
+import { NetworkServicesComparisonModal } from "./comparison/network-services-comparison-modal";
 
 export function ProtocolSelector({
   value,
@@ -20,12 +23,12 @@ export function ProtocolSelector({
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+      className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm font-medium"
       aria-label="Select protocol"
     >
       {protocols.map((p) => (
         <option key={p.id} value={p.id}>
-          {p.name}
+          {p.name} — {p.layer}
         </option>
       ))}
     </select>
@@ -45,11 +48,11 @@ export function ProtocolConfigForm() {
     const tcpConfig = { ...defaultTcpConfig, ...config };
     return (
       <div className="space-y-3 p-3 border border-border rounded-lg bg-card">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between flex-wrap gap-2">
           <h3 className="text-sm font-semibold">TCP Configuration</h3>
-          <ProtocolComparisonModal />
+          <TcpUdpComparisonModal />
         </div>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <Field label="Data packets" type="number" value={tcpConfig.packetCount}
             onChange={(v) => updateConfig({ packetCount: Number(v) })} min={1} max={10} />
           <Field label="Initial seq #" type="number" value={tcpConfig.initialSeqNum}
@@ -58,65 +61,82 @@ export function ProtocolConfigForm() {
             onChange={(v) => updateConfig({ windowSize: Number(v) })} />
           <Field label="MSS" type="number" value={tcpConfig.mss}
             onChange={(v) => updateConfig({ mss: Number(v) })} />
-          <Field label="Latency (ms)" type="number" value={tcpConfig.latencyMs}
-            onChange={(v) => updateConfig({ latencyMs: Number(v) })} />
-          <Field label="Timeout (ms)" type="number" value={tcpConfig.timeoutMs}
-            onChange={(v) => updateConfig({ timeoutMs: Number(v) })} />
-          <Field label="Drop packet index (-1=none)" type="number" value={tcpConfig.dropPacketIndex}
-            onChange={(v) => updateConfig({ dropPacketIndex: Number(v) })} min={-1} />
-          <Field label="Drop ACK index (-1=none)" type="number" value={tcpConfig.dropAckIndex}
-            onChange={(v) => updateConfig({ dropAckIndex: Number(v) })} min={-1} />
         </div>
-        <div className="flex items-center gap-2">
-          <Switch
-            checked={tcpConfig.includeClose}
-            onCheckedChange={(v) => updateConfig({ includeClose: v })}
-            aria-label="Include connection close"
-          />
-          <Label>Include FIN close sequence</Label>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+          <div className="flex items-center justify-between p-2 rounded-lg bg-secondary/30 border border-border/50">
+            <Label className="text-xs">Simulate packet loss (segment 2)</Label>
+            <Switch checked={tcpConfig.dropPacketIndex >= 0}
+              onCheckedChange={(checked) => updateConfig({ dropPacketIndex: checked ? 1 : -1 })} />
+          </div>
+          <div className="flex items-center justify-between p-2 rounded-lg bg-secondary/30 border border-border/50">
+            <Label className="text-xs">Simulate out-of-order</Label>
+            <Switch checked={!tcpConfig.orderedDelivery}
+              onCheckedChange={(checked) => updateConfig({ orderedDelivery: !checked })} />
+          </div>
         </div>
-        <Button onClick={() => { tcpConfigSchema.parse({ ...defaultTcpConfig, ...config }); regenerate(); }} className="w-full">
-          Apply & Regenerate
-        </Button>
+        <div className="flex items-center justify-between pt-2 border-t border-border/50">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig(defaultTcpConfig); regenerate(); }}
+            className="text-xs cursor-pointer gap-1"
+          >
+            <RotateCcw className="h-3.5 w-3.5" />
+            Reset Defaults
+          </Button>
+          <Button
+            size="sm"
+            variant="default"
+            onClick={() => regenerate()}
+            className="text-xs font-semibold cursor-pointer gap-1.5"
+          >
+            <Check className="h-3.5 w-3.5" />
+            Accept & Regenerate
+          </Button>
+        </div>
       </div>
     );
   }
 
   if (protocolId === "udp") {
     const udpConfig = { ...defaultUdpConfig, ...config };
-    const dropStr = Array.isArray(udpConfig.dropIndices) ? udpConfig.dropIndices.join(",") : "";
     return (
       <div className="space-y-3 p-3 border border-border rounded-lg bg-card">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between flex-wrap gap-2">
           <h3 className="text-sm font-semibold">UDP Configuration</h3>
-          <ProtocolComparisonModal />
+          <TcpUdpComparisonModal />
         </div>
         <div className="grid grid-cols-2 gap-3">
           <Field label="Datagram count" type="number" value={udpConfig.datagramCount}
             onChange={(v) => updateConfig({ datagramCount: Number(v) })} min={1} max={15} />
-          <Field label="Payload size" type="number" value={udpConfig.payloadSize}
+          <Field label="Payload size (bytes)" type="number" value={udpConfig.payloadSize}
             onChange={(v) => updateConfig({ payloadSize: Number(v) })} />
-          <Field label="Latency (ms)" type="number" value={udpConfig.latencyMs}
-            onChange={(v) => updateConfig({ latencyMs: Number(v) })} />
-          <Field label="Send interval (ms)" type="number" value={udpConfig.sendIntervalMs}
-            onChange={(v) => updateConfig({ sendIntervalMs: Number(v) })} />
         </div>
-        <Field label="Drop indices (comma-separated)" type="text" value={dropStr}
-          onChange={(v) => {
-            const indices = v.split(",").map((s) => s.trim()).filter(Boolean).map(Number).filter((n) => !isNaN(n));
-            updateConfig({ dropIndices: indices });
-          }} />
-        <div className="flex items-center gap-2">
-          <Switch
-            checked={udpConfig.outOfOrder}
-            onCheckedChange={(v) => updateConfig({ outOfOrder: v })}
-            aria-label="Out of order delivery"
-          />
-          <Label>Simulate out-of-order arrival</Label>
+        <div className="flex items-center justify-between p-2 rounded-lg bg-secondary/30 border border-border/50">
+          <Label className="text-xs">Simulate packet loss</Label>
+          <Switch checked={udpConfig.dropIndices.length > 0}
+            onCheckedChange={(checked) => updateConfig({ dropIndices: checked ? [1] : [] })} />
         </div>
-        <Button onClick={() => { udpConfigSchema.parse({ ...defaultUdpConfig, ...config }); regenerate(); }} className="w-full">
-          Apply & Regenerate
-        </Button>
+        <div className="flex items-center justify-between pt-2 border-t border-border/50">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig(defaultUdpConfig); regenerate(); }}
+            className="text-xs cursor-pointer gap-1"
+          >
+            <RotateCcw className="h-3.5 w-3.5" />
+            Reset Defaults
+          </Button>
+          <Button
+            size="sm"
+            variant="default"
+            onClick={() => regenerate()}
+            className="text-xs font-semibold cursor-pointer gap-1.5"
+          >
+            <Check className="h-3.5 w-3.5" />
+            Accept & Regenerate
+          </Button>
+        </div>
       </div>
     );
   }
@@ -126,11 +146,11 @@ export function ProtocolConfigForm() {
       <div className="space-y-3 p-3 border border-border rounded-lg bg-card">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <h3 className="text-sm font-semibold">OSPF Simulation & SPF Controls</h3>
-            <Badge variant="default" className="text-[10px]">Area 0</Badge>
+            <h3 className="text-sm font-semibold">OSPF Dijkstra SPF & Multi-Topology Controls</h3>
+            <Badge variant="default" className="text-[10px]">Area 0 Backbone</Badge>
           </div>
           <div className="flex items-center gap-2">
-            <ProtocolComparisonModal />
+            <OspfBgpComparisonModal />
             <Link href="/protocols/ospf">
               <Button size="sm" variant="default" className="text-xs">
                 Open Dedicated OSPF Studio →
@@ -167,7 +187,7 @@ export function ProtocolConfigForm() {
             <Badge variant="default" className="text-[10px]">4 AS Domain</Badge>
           </div>
           <div className="flex items-center gap-2">
-            <ProtocolComparisonModal />
+            <OspfBgpComparisonModal />
             <Link href="/protocols/bgp">
               <Button size="sm" variant="default" className="text-xs">
                 Open Dedicated BGP Studio →
@@ -189,6 +209,80 @@ export function ProtocolConfigForm() {
             onClick={() => { updateConfig({ failureScenario: "break_as65001_as65002" }); regenerate(); }}
           >
             Scenario: Break Peering Link
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (protocolId === "dhcp") {
+    return (
+      <div className="space-y-3 p-3 border border-border rounded-lg bg-card">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-semibold">DHCP Address Pool & DORA Handshake Controls</h3>
+            <Badge variant="default" className="text-[10px]">RFC 2131 / 2132</Badge>
+          </div>
+          <div className="flex items-center gap-2">
+            <NetworkServicesComparisonModal />
+            <Link href="/protocols/dhcp">
+              <Button size="sm" variant="default" className="text-xs">
+                Open Dedicated DHCP Studio →
+              </Button>
+            </Link>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-2 text-xs">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ failureScenario: "pool_exhausted" }); regenerate(); }}
+          >
+            Scenario: Address Pool Exhaustion
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ failureScenario: "ip_conflict_decline" }); regenerate(); }}
+          >
+            Scenario: ARP IP Conflict → DECLINE
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (protocolId === "dns") {
+    return (
+      <div className="space-y-3 p-3 border border-border rounded-lg bg-card">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-semibold">DNS Hierarchy & Iterative Resolution Controls</h3>
+            <Badge variant="default" className="text-[10px]">RFC 1034 / 1035</Badge>
+          </div>
+          <div className="flex items-center gap-2">
+            <NetworkServicesComparisonModal />
+            <Link href="/protocols/dns">
+              <Button size="sm" variant="default" className="text-xs">
+                Open Dedicated DNS Studio →
+              </Button>
+            </Link>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-2 text-xs">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ failureScenario: "cache_hit" }); regenerate(); }}
+          >
+            Scenario: Resolver Cache HIT
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ failureScenario: "cname_resolution" }); regenerate(); }}
+          >
+            Scenario: CNAME Alias Chain
           </Button>
         </div>
       </div>

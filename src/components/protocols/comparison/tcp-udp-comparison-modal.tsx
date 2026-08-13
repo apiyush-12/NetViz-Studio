@@ -4,49 +4,54 @@ import React, { useState } from "react";
 import { Button, Card, CardHeader, CardTitle, CardContent } from "@/components/ui";
 import { Scale, X } from "lucide-react";
 
-export function OspfBgpComparisonModal() {
+export function TcpUdpComparisonModal() {
   const [isOpen, setIsOpen] = useState(false);
 
   const comparisonRows = [
     {
-      dimension: "Protocol Category",
-      ospf: "Interior Gateway Protocol (IGP)",
-      bgp: "Exterior Gateway Protocol (EGP) / Path-Vector",
+      dimension: "Full Name & RFC",
+      tcp: "Transmission Control Protocol (RFC 793 / 9293)",
+      udp: "User Datagram Protocol (RFC 768)",
     },
     {
-      dimension: "Operating Scope",
-      ospf: "Within a single Autonomous System / Enterprise domain",
-      bgp: "Between distinct Autonomous Systems (Internet-wide) & large internal networks",
+      dimension: "Connection Paradigm",
+      tcp: "Connection-Oriented (Strict 3-Way SYN → SYN-ACK → ACK Handshake)",
+      udp: "Connectionless / Stateless (Immediate fire-and-forget datagrams)",
     },
     {
-      dimension: "Algorithm & Approach",
-      ospf: "Link-State approach using Dijkstra's Shortest Path First (SPF)",
-      bgp: "Policy-driven decision tree using AS_PATH, LOCAL_PREF, MED, and BGP attributes",
+      dimension: "Delivery Guarantee",
+      tcp: "100% Reliable (ACK tracking, Retransmission timers, Sequence numbers)",
+      udp: "Best-Effort (Packets can be lost, reordered, or duplicated without notice)",
     },
     {
-      dimension: "Primary Metric",
-      ospf: "Interface Bandwidth / Cost (Cumulative link costs)",
-      bgp: "Path Attributes (LOCAL_PREF, AS_PATH length, MED, Origin code)",
+      dimension: "Data Ordering",
+      tcp: "Guaranteed In-Order (Receiver reassembles out-of-order segments)",
+      udp: "No Ordering (Packets delivered as they arrive at destination)",
     },
     {
-      dimension: "Transport Protocol",
-      ospf: "Directly over IP (Protocol 89) using multicast (224.0.0.5)",
-      bgp: "TCP Connection over Port 179 for reliable transport",
+      dimension: "Flow & Congestion Control",
+      tcp: "Advanced (Sliding Window, CWND, Slow Start, AIMD, Fast Retransmit)",
+      udp: "None (Application layer must manage rate limits and network buffering)",
     },
     {
-      dimension: "Routing Objective",
-      ospf: "Find the technically shortest / lowest cost path inside domain",
-      bgp: "Enforce business relationships, administrative policies, and loop prevention",
+      dimension: "Header Size & Overhead",
+      tcp: "20–60 Bytes (Source/Dest Port, Seq, Ack, Offset, Flags, Window, Checksum, Options)",
+      udp: "Fixed 8 Bytes (Source Port, Dest Port, Length, Checksum)",
     },
     {
-      dimension: "Scalability & Hierarchy",
-      ospf: "Hierarchical Areas (Area 0 backbone + Area 1/2 stub areas)",
-      bgp: "Autonomous Systems (AS numbers: 1 to 4,294,967,295) interconnecting global Internet",
+      dimension: "Latency & Speed",
+      tcp: "Higher latency due to connection setup and round-trip ACK delays",
+      udp: "Ultra-low latency with near-zero transmission overhead",
     },
     {
-      dimension: "Convergence Speed",
-      ospf: "Fast (sub-second to seconds) via immediate LSA flooding and local SPF runs",
-      bgp: "Deliberate and damped (MRAI timers) to prevent global Internet flapping",
+      dimension: "Addressing / Broadcast",
+      tcp: "Unicast Point-to-Point only (Single socket pair)",
+      udp: "Unicast, Multicast, and Broadcast supported",
+    },
+    {
+      dimension: "Common Real-World Uses",
+      tcp: "Web (HTTP/HTTPS), Secure Shell (SSH), File Transfer (FTP), Email (SMTP)",
+      udp: "DNS (UDP 53), DHCP (UDP 67/68), VoIP, Live Video Streaming, Gaming",
     },
   ];
 
@@ -59,7 +64,7 @@ export function OspfBgpComparisonModal() {
         className="gap-1.5 text-xs text-primary border-primary/30 hover:bg-primary/10 cursor-pointer"
       >
         <Scale className="h-3.5 w-3.5" />
-        OSPF vs BGP Comparison
+        TCP vs UDP Comparison
       </Button>
 
       {isOpen && (
@@ -69,10 +74,10 @@ export function OspfBgpComparisonModal() {
               <div>
                 <CardTitle className="text-base font-semibold flex items-center gap-2">
                   <Scale className="h-4 w-4 text-primary" />
-                  Routing Protocols: OSPF vs BGP Architectural Comparison
+                  Transport Layer: TCP vs UDP Architectural Comparison
                 </CardTitle>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Side-by-side analysis of Interior Gateway vs Exterior Gateway routing architectures
+                  Side-by-side analysis of connection-oriented vs connectionless transport protocols
                 </p>
               </div>
               <Button
@@ -91,11 +96,11 @@ export function OspfBgpComparisonModal() {
                   <thead>
                     <tr className="border-b border-border/80 bg-secondary/50 font-semibold text-foreground">
                       <th className="py-2.5 px-3 w-1/4">Architectural Dimension</th>
-                      <th className="py-2.5 px-3 w-[37.5%] text-emerald-600 dark:text-emerald-400 font-mono font-semibold">
-                        OSPF (Link-State IGP)
+                      <th className="py-2.5 px-3 w-[37.5%] text-blue-600 dark:text-blue-400 font-mono font-semibold">
+                        TCP (Reliable Stream)
                       </th>
-                      <th className="py-2.5 px-3 w-[37.5%] text-purple-600 dark:text-purple-400 font-mono font-semibold">
-                        BGP (Path-Vector EGP)
+                      <th className="py-2.5 px-3 w-[37.5%] text-amber-600 dark:text-amber-400 font-mono font-semibold">
+                        UDP (Datagram)
                       </th>
                     </tr>
                   </thead>
@@ -109,10 +114,10 @@ export function OspfBgpComparisonModal() {
                           {row.dimension}
                         </td>
                         <td className="py-2.5 px-3 text-muted-foreground leading-relaxed">
-                          {row.ospf}
+                          {row.tcp}
                         </td>
                         <td className="py-2.5 px-3 text-muted-foreground leading-relaxed">
-                          {row.bgp}
+                          {row.udp}
                         </td>
                       </tr>
                     ))}
@@ -123,10 +128,16 @@ export function OspfBgpComparisonModal() {
               {/* Summary Insight Box */}
               <div className="p-3 bg-secondary/30 border border-border rounded-lg space-y-1.5 text-xs">
                 <div className="font-semibold text-primary">Summary Architecture Insight:</div>
-                <p className="text-muted-foreground leading-relaxed">
-                  <strong>OSPF</strong> is optimized for speed, shortest path calculation, and full topology visibility inside an enterprise or data center.
-                  In contrast, <strong>BGP</strong> is optimized for scale, administrative autonomy, and policy-based route filtering across thousands of distinct networks making up the global Internet.
-                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-muted-foreground">
+                  <div className="p-2.5 rounded bg-background/60 border border-border/50">
+                    <span className="font-bold text-blue-600 dark:text-blue-400 block mb-1">When to choose TCP:</span>
+                    When data accuracy is non-negotiable (e.g. web pages, financial transactions, file downloads, authentication tokens).
+                  </div>
+                  <div className="p-2.5 rounded bg-background/60 border border-border/50">
+                    <span className="font-bold text-amber-600 dark:text-amber-400 block mb-1">When to choose UDP:</span>
+                    When timeliness and minimum latency outweigh perfect reliability (e.g. real-time voice, video streaming, DNS lookups, multiplayer game physics).
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -135,6 +146,3 @@ export function OspfBgpComparisonModal() {
     </>
   );
 }
-
-// Export ProtocolComparisonModal as alias for backward compatibility
-export const ProtocolComparisonModal = OspfBgpComparisonModal;

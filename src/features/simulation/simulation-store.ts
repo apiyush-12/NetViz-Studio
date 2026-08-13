@@ -42,18 +42,21 @@ interface SimulationStore {
   getSelectedPacket: () => Packet | null;
 }
 
-function createEngine(set: (partial: Partial<SimulationStore>) => void): SimulationEngine {
+function createEngine(set: (fn: (state: SimulationStore) => Partial<SimulationStore>) => void): SimulationEngine {
   return new SimulationEngine({
     onStepChange: (step, event) => {
-      set({
+      set((state) => ({
         currentStep: step,
         selectedEventId: event?.id ?? null,
         selectedPacketId: event?.packetId ?? null,
-        protocolState: extractProtocolState(event),
-      });
+        protocolState: {
+          ...state.protocolState,
+          ...extractProtocolState(event),
+        },
+      }));
     },
-    onStateChange: (state) => set({ playbackState: state }),
-    onComplete: () => set({ playbackState: "completed" }),
+    onStateChange: (playbackState) => set(() => ({ playbackState })),
+    onComplete: () => set(() => ({ playbackState: "completed" })),
   });
 }
 

@@ -71,7 +71,7 @@ export function buildOspfSimulationSequence(
   ) => {
     const base = createEventBase(seq++, time, "ospf");
     time += 350;
-    if (pkt) packets.push(pkt);
+    if (pkt && !packets.some((p) => p.id === pkt.id)) packets.push(pkt);
     events.push({
       ...base,
       type,

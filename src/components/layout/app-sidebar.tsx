@@ -25,14 +25,14 @@ import { Button } from "@/components/ui";
 import { useSidebar } from "@/components/layout/sidebar-context";
 
 const navItems = [
-  { href: "/dashboard",  label: "Dashboard",        icon: LayoutDashboard },
-  { href: "/visualizer", label: "Visualizer",        icon: Network },
-  { href: "/protocols",  label: "Protocols",         icon: Layers },
-  { href: "/cidr",       label: "CIDR Calculator",   icon: Calculator },
-  { href: "/topology",   label: "Topology",          icon: GitBranch },
-  { href: "/labs",       label: "Labs",              icon: FlaskConical },
-  { href: "/learn",      label: "Learn",             icon: BookOpen },
-  { href: "/settings",   label: "Settings",          icon: Settings },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/visualizer", label: "Visualizer", icon: Network },
+  { href: "/protocols", label: "Protocols", icon: Layers },
+  { href: "/cidr", label: "CIDR Calculator", icon: Calculator },
+  { href: "/topology", label: "Topology", icon: GitBranch },
+  { href: "/labs", label: "Labs", icon: FlaskConical },
+  { href: "/learn", label: "Learn", icon: BookOpen },
+  { href: "/settings", label: "Settings", icon: Settings },
 ];
 
 // ─── Tooltip ──────────────────────────────────────────────────────────────────

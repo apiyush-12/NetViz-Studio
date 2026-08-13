@@ -247,7 +247,7 @@ export function OspfTopology({
               activeShortestPath.includes(link.targetRouterId) &&
               Math.abs(
                 activeShortestPath.indexOf(link.sourceRouterId) -
-                  activeShortestPath.indexOf(link.targetRouterId)
+                activeShortestPath.indexOf(link.targetRouterId)
               ) === 1;
 
             const midX = (src.x + dst.x) / 2;
@@ -390,7 +390,7 @@ export function OspfTopology({
           OSPF Message Stream:
         </span>
         <div className="flex items-center gap-1.5 overflow-x-auto py-0.5">
-          {packets.slice(0, 14).map((pkt) => {
+          {Array.from(new Map(packets.map((p) => [p.id, p])).values()).slice(0, 14).map((pkt, idx) => {
             const delivered = visibleEvents.some(
               (e) => e.packetId === pkt.id && (e.type === "packet-arrived" || e.type === "state-change" || e.type === "route-calculated")
             );
@@ -398,7 +398,7 @@ export function OspfTopology({
 
             return (
               <button
-                key={pkt.id}
+                key={`${pkt.id}-${idx}`}
                 onClick={() => selectPacket(pkt.id)}
                 className={cn(
                   "px-2.5 py-1 rounded-full text-[10px] font-mono font-semibold border transition-all cursor-pointer",
