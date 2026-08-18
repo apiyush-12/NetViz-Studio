@@ -19,6 +19,7 @@ import { OspfVisualizer } from "@/components/protocols/ospf/ospf-visualizer";
 import { BgpVisualizer } from "@/components/protocols/bgp/bgp-visualizer";
 import { DhcpVisualizer } from "@/components/protocols/dhcp/dhcp-visualizer";
 import { DnsVisualizer } from "@/components/protocols/dns/dns-visualizer";
+import { HttpVisualizer } from "@/components/protocols/http/http-visualizer";
 
 function ProtocolDetailContent() {
   const params = useParams();
@@ -66,6 +67,10 @@ function ProtocolDetailContent() {
 
   if (protocolId === "dns") {
     return <DnsVisualizer />;
+  }
+
+  if (protocolId === "http" || protocolId === "https") {
+    return <HttpVisualizer />;
   }
 
   return (

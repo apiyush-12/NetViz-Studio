@@ -10,6 +10,7 @@ import { defaultUdpConfig } from "@/features/protocols/udp/udp.config";
 import { TcpUdpComparisonModal } from "./comparison/tcp-udp-comparison-modal";
 import { OspfBgpComparisonModal } from "./comparison/ospf-bgp-comparison-modal";
 import { NetworkServicesComparisonModal } from "./comparison/network-services-comparison-modal";
+import { HttpHttpsComparisonModal } from "./comparison/http-https-comparison-modal";
 
 export function ProtocolSelector({
   value,
@@ -283,6 +284,57 @@ export function ProtocolConfigForm() {
             onClick={() => { updateConfig({ failureScenario: "cname_resolution" }); regenerate(); }}
           >
             Scenario: CNAME Alias Chain
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (protocolId === "http" || protocolId === "https") {
+    return (
+      <div className="space-y-3 p-3 border border-border rounded-lg bg-card">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-semibold">HTTP / HTTPS Request & TLS Handshake Controls</h3>
+            <Badge variant="default" className="text-[10px]">RFC 9110 / RFC 8446</Badge>
+          </div>
+          <div className="flex items-center gap-2">
+            <HttpHttpsComparisonModal />
+            <Link href="/protocols/http">
+              <Button size="sm" variant="default" className="text-xs">
+                Open Dedicated HTTP Studio →
+              </Button>
+            </Link>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ scheme: "https", method: "GET", path: "/v1/users" }); regenerate(); }}
+          >
+            Scenario: HTTPS TLS 1.3
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ scheme: "http", method: "GET", path: "/index.html" }); regenerate(); }}
+          >
+            Scenario: Plaintext HTTP :80
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ scheme: "https", method: "POST", path: "/v1/users" }); regenerate(); }}
+          >
+            Scenario: REST API POST (201)
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ scheme: "https", method: "GET", path: "/assets/app.js" }); regenerate(); }}
+          >
+            Scenario: Cache 304 Revalidation
           </Button>
         </div>
       </div>

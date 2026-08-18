@@ -5,11 +5,11 @@ import { ospfModule } from "./ospf/ospf.module";
 import { bgpModule } from "./bgp/bgp.module";
 import { dhcpModule } from "./dhcp/dhcp.module";
 import { dnsModule } from "./dns/dns.module";
+import { httpModule } from "./http/http.module";
 
 const plannedProtocols: Omit<ProtocolModule, "generateSimulation" | "configurationSchema" | "defaultConfiguration" | "defaultTopology" | "packetFields" | "explanationSections">[] = [
   { id: "icmp", name: "ICMP", category: "network", layer: "Network (Layer 3)", summary: "Internet Control Message Protocol — diagnostics and error reporting.", status: "planned", learningObjectives: [], simplificationNotes: [] },
   { id: "arp", name: "ARP", category: "data-link", layer: "Data-Link (Layer 2)", summary: "Address Resolution Protocol — maps IP to MAC addresses.", status: "planned", learningObjectives: [], simplificationNotes: [] },
-  { id: "http", name: "HTTP/HTTPS", category: "application", layer: "Application (Layer 7)", summary: "Hypertext Transfer Protocol — web communication.", status: "planned", learningObjectives: [], simplificationNotes: [] },
   { id: "tls", name: "TLS", category: "security", layer: "Application (Layer 7)", summary: "Transport Layer Security — encrypted communication.", status: "planned", learningObjectives: [], simplificationNotes: [] },
   { id: "ipv4", name: "IPv4", category: "network", layer: "Network (Layer 3)", summary: "Internet Protocol version 4 — packet forwarding and addressing.", status: "planned", learningObjectives: [], simplificationNotes: [] },
   { id: "ipv6", name: "IPv6", category: "network", layer: "Network (Layer 3)", summary: "Internet Protocol version 6 — next-generation addressing.", status: "planned", learningObjectives: [], simplificationNotes: [] },
@@ -43,6 +43,7 @@ const implementedModules: ProtocolModule[] = [
   bgpModule,
   dhcpModule,
   dnsModule,
+  httpModule,
 ];
 
 const placeholderModules: ProtocolModule[] = plannedProtocols.map(createPlaceholderModule);
