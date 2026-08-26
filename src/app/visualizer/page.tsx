@@ -17,6 +17,7 @@ import { OspfVisualizer } from "@/components/protocols/ospf/ospf-visualizer";
 import { BgpVisualizer } from "@/components/protocols/bgp/bgp-visualizer";
 import { DhcpVisualizer } from "@/components/protocols/dhcp/dhcp-visualizer";
 import { DnsVisualizer } from "@/components/protocols/dns/dns-visualizer";
+import { NatVisualizer } from "@/components/protocols/nat/nat-visualizer";
 
 function VisualizerContent() {
   const searchParams = useSearchParams();
@@ -95,6 +96,23 @@ function VisualizerContent() {
           </div>
         </div>
         <DnsVisualizer />
+      </div>
+    );
+  }
+
+  if (protocolId === "nat") {
+    return (
+      <div className="flex flex-col h-full">
+        <div className="p-3 border-b border-border space-y-3">
+          <div className="w-48">
+            <label className="text-xs text-muted-foreground mb-1 block">Protocol</label>
+            <ProtocolSelector
+              value={protocolId ?? "nat"}
+              onChange={(id) => loadProtocol(id)}
+            />
+          </div>
+        </div>
+        <NatVisualizer />
       </div>
     );
   }

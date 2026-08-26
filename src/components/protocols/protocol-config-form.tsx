@@ -11,6 +11,7 @@ import { TcpUdpComparisonModal } from "./comparison/tcp-udp-comparison-modal";
 import { OspfBgpComparisonModal } from "./comparison/ospf-bgp-comparison-modal";
 import { NetworkServicesComparisonModal } from "./comparison/network-services-comparison-modal";
 import { HttpHttpsComparisonModal } from "./comparison/http-https-comparison-modal";
+import { NatPatComparisonModal } from "./comparison/nat-pat-comparison-modal";
 
 export function ProtocolSelector({
   value,
@@ -335,6 +336,57 @@ export function ProtocolConfigForm() {
             onClick={() => { updateConfig({ scheme: "https", method: "GET", path: "/assets/app.js" }); regenerate(); }}
           >
             Scenario: Cache 304 Revalidation
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (protocolId === "nat") {
+    return (
+      <div className="space-y-3 p-3 border border-border rounded-lg bg-card">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-semibold">NAT / PAT Header Rewriting & Table Controls</h3>
+            <Badge variant="default" className="text-[10px]">RFC 3022 / RFC 4787</Badge>
+          </div>
+          <div className="flex items-center gap-2">
+            <NatPatComparisonModal />
+            <Link href="/protocols/nat">
+              <Button size="sm" variant="default" className="text-xs">
+                Open Dedicated NAT Studio →
+              </Button>
+            </Link>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ mode: "pat" }); regenerate(); }}
+          >
+            Scenario: PAT Port Overload
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ mode: "dnat" }); regenerate(); }}
+          >
+            Scenario: Port Forwarding (8080)
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ mode: "dynamic" }); regenerate(); }}
+          >
+            Scenario: Dynamic IP Pool
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ mode: "cgnat" }); regenerate(); }}
+          >
+            Scenario: Carrier-Grade NAT
           </Button>
         </div>
       </div>

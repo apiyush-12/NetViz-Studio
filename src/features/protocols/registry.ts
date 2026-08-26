@@ -6,6 +6,7 @@ import { bgpModule } from "./bgp/bgp.module";
 import { dhcpModule } from "./dhcp/dhcp.module";
 import { dnsModule } from "./dns/dns.module";
 import { httpModule } from "./http/http.module";
+import { natModule } from "./nat/nat.module";
 
 const plannedProtocols: Omit<ProtocolModule, "generateSimulation" | "configurationSchema" | "defaultConfiguration" | "defaultTopology" | "packetFields" | "explanationSections">[] = [
   { id: "icmp", name: "ICMP", category: "network", layer: "Network (Layer 3)", summary: "Internet Control Message Protocol — diagnostics and error reporting.", status: "planned", learningObjectives: [], simplificationNotes: [] },
@@ -13,7 +14,6 @@ const plannedProtocols: Omit<ProtocolModule, "generateSimulation" | "configurati
   { id: "tls", name: "TLS", category: "security", layer: "Application (Layer 7)", summary: "Transport Layer Security — encrypted communication.", status: "planned", learningObjectives: [], simplificationNotes: [] },
   { id: "ipv4", name: "IPv4", category: "network", layer: "Network (Layer 3)", summary: "Internet Protocol version 4 — packet forwarding and addressing.", status: "planned", learningObjectives: [], simplificationNotes: [] },
   { id: "ipv6", name: "IPv6", category: "network", layer: "Network (Layer 3)", summary: "Internet Protocol version 6 — next-generation addressing.", status: "planned", learningObjectives: [], simplificationNotes: [] },
-  { id: "nat", name: "NAT", category: "network", layer: "Network (Layer 3)", summary: "Network Address Translation — private to public address mapping.", status: "planned", learningObjectives: [], simplificationNotes: [] },
   { id: "vlan", name: "VLAN", category: "data-link", layer: "Data-Link (Layer 2)", summary: "Virtual LAN — logical network segmentation.", status: "planned", learningObjectives: [], simplificationNotes: [] },
   { id: "stp", name: "STP", category: "data-link", layer: "Data-Link (Layer 2)", summary: "Spanning Tree Protocol — loop-free switching.", status: "planned", learningObjectives: [], simplificationNotes: [] },
   { id: "rip", name: "RIP", category: "routing", layer: "Network (Layer 3)", summary: "Routing Information Protocol — distance-vector routing.", status: "planned", learningObjectives: [], simplificationNotes: [] },
@@ -44,6 +44,7 @@ const implementedModules: ProtocolModule[] = [
   dhcpModule,
   dnsModule,
   httpModule,
+  natModule,
 ];
 
 const placeholderModules: ProtocolModule[] = plannedProtocols.map(createPlaceholderModule);

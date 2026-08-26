@@ -20,6 +20,7 @@ import { BgpVisualizer } from "@/components/protocols/bgp/bgp-visualizer";
 import { DhcpVisualizer } from "@/components/protocols/dhcp/dhcp-visualizer";
 import { DnsVisualizer } from "@/components/protocols/dns/dns-visualizer";
 import { HttpVisualizer } from "@/components/protocols/http/http-visualizer";
+import { NatVisualizer } from "@/components/protocols/nat/nat-visualizer";
 
 function ProtocolDetailContent() {
   const params = useParams();
@@ -71,6 +72,10 @@ function ProtocolDetailContent() {
 
   if (protocolId === "http" || protocolId === "https") {
     return <HttpVisualizer />;
+  }
+
+  if (protocolId === "nat") {
+    return <NatVisualizer />;
   }
 
   return (
