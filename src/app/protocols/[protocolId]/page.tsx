@@ -21,6 +21,8 @@ import { DhcpVisualizer } from "@/components/protocols/dhcp/dhcp-visualizer";
 import { DnsVisualizer } from "@/components/protocols/dns/dns-visualizer";
 import { HttpVisualizer } from "@/components/protocols/http/http-visualizer";
 import { NatVisualizer } from "@/components/protocols/nat/nat-visualizer";
+import { Ipv4Visualizer } from "@/components/protocols/ipv4/ipv4-visualizer";
+import { Ipv6Visualizer } from "@/components/protocols/ipv6/ipv6-visualizer";
 
 function ProtocolDetailContent() {
   const params = useParams();
@@ -76,6 +78,14 @@ function ProtocolDetailContent() {
 
   if (protocolId === "nat") {
     return <NatVisualizer />;
+  }
+
+  if (protocolId === "ipv4") {
+    return <Ipv4Visualizer />;
+  }
+
+  if (protocolId === "ipv6") {
+    return <Ipv6Visualizer />;
   }
 
   return (

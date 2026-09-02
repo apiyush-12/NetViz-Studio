@@ -12,6 +12,7 @@ import { OspfBgpComparisonModal } from "./comparison/ospf-bgp-comparison-modal";
 import { NetworkServicesComparisonModal } from "./comparison/network-services-comparison-modal";
 import { HttpHttpsComparisonModal } from "./comparison/http-https-comparison-modal";
 import { NatPatComparisonModal } from "./comparison/nat-pat-comparison-modal";
+import { Ipv4Ipv6ComparisonModal } from "./comparison/ipv4-ipv6-comparison-modal";
 
 export function ProtocolSelector({
   value,
@@ -387,6 +388,108 @@ export function ProtocolConfigForm() {
             onClick={() => { updateConfig({ mode: "cgnat" }); regenerate(); }}
           >
             Scenario: Carrier-Grade NAT
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (protocolId === "ipv4") {
+    return (
+      <div className="space-y-3 p-3 border border-border rounded-lg bg-card">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-semibold">IPv4 Header & MTU Fragmentation Controls</h3>
+            <Badge variant="default" className="text-[10px]">RFC 791 / RFC 815</Badge>
+          </div>
+          <div className="flex items-center gap-2">
+            <Ipv4Ipv6ComparisonModal />
+            <Link href="/protocols/ipv4">
+              <Button size="sm" variant="default" className="text-xs">
+                Open Dedicated IPv4 Studio →
+              </Button>
+            </Link>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ packetSize: 500, initialTtl: 64, dfFlag: false, routerMtu: 576, scenarioId: "standard_forwarding" }); regenerate(); }}
+          >
+            Scenario: Standard Forwarding (500B)
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ packetSize: 1500, initialTtl: 64, dfFlag: false, routerMtu: 576, scenarioId: "fragmentation_mtu" }); regenerate(); }}
+          >
+            Scenario: MTU Fragmentation (1500B)
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ packetSize: 500, initialTtl: 1, dfFlag: false, routerMtu: 576, scenarioId: "ttl_expiration" }); regenerate(); }}
+          >
+            Scenario: TTL=1 Expiration Drop
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ packetSize: 1500, initialTtl: 64, dfFlag: true, routerMtu: 576, scenarioId: "checksum_error" }); regenerate(); }}
+          >
+            Scenario: DF=1 MTU Exceeded Drop
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (protocolId === "ipv6") {
+    return (
+      <div className="space-y-3 p-3 border border-border rounded-lg bg-card">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-semibold">IPv6 128-Bit Routing & Flow Label Controls</h3>
+            <Badge variant="default" className="text-[10px]">RFC 8200 / RFC 4861</Badge>
+          </div>
+          <div className="flex items-center gap-2">
+            <Ipv4Ipv6ComparisonModal />
+            <Link href="/protocols/ipv6">
+              <Button size="sm" variant="default" className="text-xs">
+                Open Dedicated IPv6 Studio →
+              </Button>
+            </Link>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ payloadSize: 1200, flowLabel: 98124, useExtensionHeader: false, scenarioId: "ipv6_unicast_transit" }); regenerate(); }}
+          >
+            Scenario: Native IPv6 Unicast
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ payloadSize: 1200, flowLabel: 98124, useExtensionHeader: true, scenarioId: "ipv6_extension_headers" }); regenerate(); }}
+          >
+            Scenario: Extension Headers
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ payloadSize: 64, flowLabel: 0, useExtensionHeader: false, scenarioId: "ipv6_slaac_ndp" }); regenerate(); }}
+          >
+            Scenario: SLAAC & NDP
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ payloadSize: 1200, flowLabel: 98124, useExtensionHeader: false, scenarioId: "6to4_tunneling" }); regenerate(); }}
+          >
+            Scenario: 6to4 Tunneling
           </Button>
         </div>
       </div>

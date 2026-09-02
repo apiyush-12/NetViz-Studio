@@ -18,6 +18,8 @@ import { BgpVisualizer } from "@/components/protocols/bgp/bgp-visualizer";
 import { DhcpVisualizer } from "@/components/protocols/dhcp/dhcp-visualizer";
 import { DnsVisualizer } from "@/components/protocols/dns/dns-visualizer";
 import { NatVisualizer } from "@/components/protocols/nat/nat-visualizer";
+import { Ipv4Visualizer } from "@/components/protocols/ipv4/ipv4-visualizer";
+import { Ipv6Visualizer } from "@/components/protocols/ipv6/ipv6-visualizer";
 
 function VisualizerContent() {
   const searchParams = useSearchParams();
@@ -113,6 +115,40 @@ function VisualizerContent() {
           </div>
         </div>
         <NatVisualizer />
+      </div>
+    );
+  }
+
+  if (protocolId === "ipv4") {
+    return (
+      <div className="flex flex-col h-full">
+        <div className="p-3 border-b border-border space-y-3">
+          <div className="w-48">
+            <label className="text-xs text-muted-foreground mb-1 block">Protocol</label>
+            <ProtocolSelector
+              value={protocolId ?? "ipv4"}
+              onChange={(id) => loadProtocol(id)}
+            />
+          </div>
+        </div>
+        <Ipv4Visualizer />
+      </div>
+    );
+  }
+
+  if (protocolId === "ipv6") {
+    return (
+      <div className="flex flex-col h-full">
+        <div className="p-3 border-b border-border space-y-3">
+          <div className="w-48">
+            <label className="text-xs text-muted-foreground mb-1 block">Protocol</label>
+            <ProtocolSelector
+              value={protocolId ?? "ipv6"}
+              onChange={(id) => loadProtocol(id)}
+            />
+          </div>
+        </div>
+        <Ipv6Visualizer />
       </div>
     );
   }

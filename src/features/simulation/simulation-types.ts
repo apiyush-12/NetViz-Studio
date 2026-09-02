@@ -54,6 +54,7 @@ export type PacketStatus =
 export interface PacketHeaders {
   ethernet?: Record<string, string | number>;
   ipv4?: Record<string, string | number>;
+  ipv6?: Record<string, string | number>;
   tcp?: Record<string, string | number>;
   udp?: Record<string, string | number>;
   application?: Record<string, string | number>;
