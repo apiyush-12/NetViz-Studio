@@ -9,13 +9,13 @@ import { httpModule } from "./http/http.module";
 import { natModule } from "./nat/nat.module";
 import { ipv4Module } from "./ipv4/ipv4.module";
 import { ipv6Module } from "./ipv6/ipv6.module";
+import { stpModule } from "./stp/stp.module";
 
 const plannedProtocols: Omit<ProtocolModule, "generateSimulation" | "configurationSchema" | "defaultConfiguration" | "defaultTopology" | "packetFields" | "explanationSections">[] = [
   { id: "icmp", name: "ICMP", category: "network", layer: "Network (Layer 3)", summary: "Internet Control Message Protocol — diagnostics and error reporting.", status: "planned", learningObjectives: [], simplificationNotes: [] },
   { id: "arp", name: "ARP", category: "data-link", layer: "Data-Link (Layer 2)", summary: "Address Resolution Protocol — maps IP to MAC addresses.", status: "planned", learningObjectives: [], simplificationNotes: [] },
   { id: "tls", name: "TLS", category: "security", layer: "Application (Layer 7)", summary: "Transport Layer Security — encrypted communication.", status: "planned", learningObjectives: [], simplificationNotes: [] },
   { id: "vlan", name: "VLAN", category: "data-link", layer: "Data-Link (Layer 2)", summary: "Virtual LAN — logical network segmentation.", status: "planned", learningObjectives: [], simplificationNotes: [] },
-  { id: "stp", name: "STP", category: "data-link", layer: "Data-Link (Layer 2)", summary: "Spanning Tree Protocol — loop-free switching.", status: "planned", learningObjectives: [], simplificationNotes: [] },
   { id: "rip", name: "RIP", category: "routing", layer: "Network (Layer 3)", summary: "Routing Information Protocol — distance-vector routing.", status: "planned", learningObjectives: [], simplificationNotes: [] },
   { id: "isis", name: "IS-IS", category: "routing", layer: "Network (Layer 3)", summary: "Intermediate System to Intermediate System routing.", status: "planned", learningObjectives: [], simplificationNotes: [] },
   { id: "mpls", name: "MPLS", category: "network", layer: "Network (Layer 2.5)", summary: "Multiprotocol Label Switching.", status: "planned", learningObjectives: [], simplificationNotes: [] },
@@ -47,6 +47,7 @@ const implementedModules: ProtocolModule[] = [
   natModule,
   ipv4Module,
   ipv6Module,
+  stpModule,
 ];
 
 const placeholderModules: ProtocolModule[] = plannedProtocols.map(createPlaceholderModule);
