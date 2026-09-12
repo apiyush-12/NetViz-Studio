@@ -23,6 +23,8 @@ import { HttpVisualizer } from "@/components/protocols/http/http-visualizer";
 import { NatVisualizer } from "@/components/protocols/nat/nat-visualizer";
 import { Ipv4Visualizer } from "@/components/protocols/ipv4/ipv4-visualizer";
 import { Ipv6Visualizer } from "@/components/protocols/ipv6/ipv6-visualizer";
+import { StpVisualizer } from "@/components/protocols/stp/stp-visualizer";
+import { ArpVisualizer } from "@/components/protocols/arp/arp-visualizer";
 
 function ProtocolDetailContent() {
   const params = useParams();
@@ -86,6 +88,14 @@ function ProtocolDetailContent() {
 
   if (protocolId === "ipv6") {
     return <Ipv6Visualizer />;
+  }
+
+  if (protocolId === "stp") {
+    return <StpVisualizer />;
+  }
+
+  if (protocolId === "arp") {
+    return <ArpVisualizer />;
   }
 
   return (

@@ -21,6 +21,7 @@ import { NatVisualizer } from "@/components/protocols/nat/nat-visualizer";
 import { Ipv4Visualizer } from "@/components/protocols/ipv4/ipv4-visualizer";
 import { Ipv6Visualizer } from "@/components/protocols/ipv6/ipv6-visualizer";
 import { StpVisualizer } from "@/components/protocols/stp/stp-visualizer";
+import { ArpVisualizer } from "@/components/protocols/arp/arp-visualizer";
 
 function VisualizerContent() {
   const searchParams = useSearchParams();
@@ -167,6 +168,23 @@ function VisualizerContent() {
           </div>
         </div>
         <StpVisualizer />
+      </div>
+    );
+  }
+
+  if (protocolId === "arp") {
+    return (
+      <div className="flex flex-col h-full">
+        <div className="p-3 border-b border-border space-y-3">
+          <div className="w-48">
+            <label className="text-xs text-muted-foreground mb-1 block">Protocol</label>
+            <ProtocolSelector
+              value={protocolId ?? "arp"}
+              onChange={(id) => loadProtocol(id)}
+            />
+          </div>
+        </div>
+        <ArpVisualizer />
       </div>
     );
   }

@@ -13,6 +13,8 @@ import { NetworkServicesComparisonModal } from "./comparison/network-services-co
 import { HttpHttpsComparisonModal } from "./comparison/http-https-comparison-modal";
 import { NatPatComparisonModal } from "./comparison/nat-pat-comparison-modal";
 import { Ipv4Ipv6ComparisonModal } from "./comparison/ipv4-ipv6-comparison-modal";
+import { StpRstpComparisonModal } from "./comparison/stp-rstp-comparison-modal";
+import { ArpNdpComparisonModal } from "./comparison/arp-ndp-comparison-modal";
 
 export function ProtocolSelector({
   value,
@@ -490,6 +492,108 @@ export function ProtocolConfigForm() {
             onClick={() => { updateConfig({ payloadSize: 1200, flowLabel: 98124, useExtensionHeader: false, scenarioId: "6to4_tunneling" }); regenerate(); }}
           >
             Scenario: 6to4 Tunneling
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (protocolId === "stp") {
+    return (
+      <div className="space-y-3 p-3 border border-border rounded-lg bg-card">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-semibold">Spanning Tree Protocol (IEEE 802.1D / RSTP)</h3>
+            <Badge variant="default" className="text-[10px]">IEEE 802.1D / 802.1w</Badge>
+          </div>
+          <div className="flex items-center gap-2">
+            <StpRstpComparisonModal />
+            <Link href="/protocols/stp">
+              <Button size="sm" variant="default" className="text-xs">
+                Open Dedicated STP Studio →
+              </Button>
+            </Link>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ scenarioId: "standard_convergence", version: "stp" }); regenerate(); }}
+          >
+            Scenario: 802.1D Election
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ scenarioId: "rstp_rapid_convergence", version: "rstp" }); regenerate(); }}
+          >
+            Scenario: RSTP Rapid Sync
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ scenarioId: "root_link_failure" }); regenerate(); }}
+          >
+            Scenario: Root Link Cut
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ scenarioId: "root_guard_defense" }); regenerate(); }}
+          >
+            Scenario: Root Guard
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (protocolId === "arp") {
+    return (
+      <div className="space-y-3 p-3 border border-border rounded-lg bg-card">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-semibold">Address Resolution Protocol (RFC 826 / RFC 5227)</h3>
+            <Badge variant="default" className="text-[10px]">Layer 2 Ethernet</Badge>
+          </div>
+          <div className="flex items-center gap-2">
+            <ArpNdpComparisonModal />
+            <Link href="/protocols/arp">
+              <Button size="sm" variant="default" className="text-xs">
+                Open Dedicated ARP Studio →
+              </Button>
+            </Link>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ scenarioId: "standard_local_arp", topologyPreset: "standard_lan", targetIp: "192.168.1.20" }); regenerate(); }}
+          >
+            Scenario: Standard Local ARP
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ scenarioId: "gateway_cross_subnet", topologyPreset: "cross_subnet_router", targetIp: "192.168.2.10" }); regenerate(); }}
+          >
+            Scenario: Cross-Subnet Gateway
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ scenarioId: "gratuitous_arp_conflict", topologyPreset: "vrrp_failover", targetIp: "192.168.1.100" }); regenerate(); }}
+          >
+            Scenario: Gratuitous ARP / ACD
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ scenarioId: "arp_spoofing_dai", topologyPreset: "security_dai_lan", attackerEnabled: true, targetIp: "192.168.1.1" }); regenerate(); }}
+          >
+            Scenario: Poisoning & DAI
           </Button>
         </div>
       </div>
