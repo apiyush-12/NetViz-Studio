@@ -15,6 +15,7 @@ import { NatPatComparisonModal } from "./comparison/nat-pat-comparison-modal";
 import { Ipv4Ipv6ComparisonModal } from "./comparison/ipv4-ipv6-comparison-modal";
 import { StpRstpComparisonModal } from "./comparison/stp-rstp-comparison-modal";
 import { ArpNdpComparisonModal } from "./comparison/arp-ndp-comparison-modal";
+import { VlanVxlanComparisonModal } from "./comparison/vlan-vxlan-comparison-modal";
 
 export function ProtocolSelector({
   value,
@@ -594,6 +595,57 @@ export function ProtocolConfigForm() {
             onClick={() => { updateConfig({ scenarioId: "arp_spoofing_dai", topologyPreset: "security_dai_lan", attackerEnabled: true, targetIp: "192.168.1.1" }); regenerate(); }}
           >
             Scenario: Poisoning & DAI
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (protocolId === "vlan") {
+    return (
+      <div className="space-y-3 p-3 border border-border rounded-lg bg-card">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-semibold">Virtual Local Area Network (IEEE 802.1Q)</h3>
+            <Badge variant="default" className="text-[10px]">Layer 2 Ethernet</Badge>
+          </div>
+          <div className="flex items-center gap-2">
+            <VlanVxlanComparisonModal />
+            <Link href="/protocols/vlan">
+              <Button size="sm" variant="default" className="text-xs">
+                Open Dedicated VLAN Studio →
+              </Button>
+            </Link>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ scenarioId: "intra_vlan_broadcast_isolation", topologyPreset: "multi_vlan_access_switch" }); regenerate(); }}
+          >
+            Scenario: Broadcast Isolation
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ scenarioId: "trunk_8021q_tagging", topologyPreset: "two_switch_trunking" }); regenerate(); }}
+          >
+            Scenario: 802.1Q Trunk Tagging
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ scenarioId: "inter_vlan_router_on_a_stick", topologyPreset: "router_on_a_stick", routingMode: "roas" }); regenerate(); }}
+          >
+            Scenario: Router-on-a-Stick
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ scenarioId: "inter_vlan_l3_svi", topologyPreset: "layer3_switch_svi", routingMode: "svi" }); regenerate(); }}
+          >
+            Scenario: Layer 3 Switch SVI
           </Button>
         </div>
       </div>

@@ -25,6 +25,7 @@ import { Ipv4Visualizer } from "@/components/protocols/ipv4/ipv4-visualizer";
 import { Ipv6Visualizer } from "@/components/protocols/ipv6/ipv6-visualizer";
 import { StpVisualizer } from "@/components/protocols/stp/stp-visualizer";
 import { ArpVisualizer } from "@/components/protocols/arp/arp-visualizer";
+import { VlanVisualizer } from "@/components/protocols/vlan/vlan-visualizer";
 
 function ProtocolDetailContent() {
   const params = useParams();
@@ -96,6 +97,10 @@ function ProtocolDetailContent() {
 
   if (protocolId === "arp") {
     return <ArpVisualizer />;
+  }
+
+  if (protocolId === "vlan") {
+    return <VlanVisualizer />;
   }
 
   return (
