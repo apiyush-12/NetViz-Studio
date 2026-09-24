@@ -16,6 +16,7 @@ import { Ipv4Ipv6ComparisonModal } from "./comparison/ipv4-ipv6-comparison-modal
 import { StpRstpComparisonModal } from "./comparison/stp-rstp-comparison-modal";
 import { ArpNdpComparisonModal } from "./comparison/arp-ndp-comparison-modal";
 import { VlanVxlanComparisonModal } from "./comparison/vlan-vxlan-comparison-modal";
+import { MplsTraditionalIpComparisonModal } from "./comparison/mpls-traditional-ip-comparison-modal";
 
 export function ProtocolSelector({
   value,
@@ -646,6 +647,59 @@ export function ProtocolConfigForm() {
             onClick={() => { updateConfig({ scenarioId: "inter_vlan_l3_svi", topologyPreset: "layer3_switch_svi", routingMode: "svi" }); regenerate(); }}
           >
             Scenario: Layer 3 Switch SVI
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (protocolId === "mpls") {
+    return (
+      <div className="space-y-3 p-3 border border-border rounded-lg bg-card">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-semibold">Multiprotocol Label Switching (RFC 3031 / 3032)</h3>
+            <Badge variant="default" className="text-[10px] bg-blue-500/20 text-blue-400 border-blue-500/30">
+              Layer 2.5
+            </Badge>
+          </div>
+          <div className="flex items-center gap-2">
+            <MplsTraditionalIpComparisonModal />
+            <Link href="/protocols/mpls">
+              <Button size="sm" variant="default" className="text-xs">
+                Open Dedicated MPLS Studio →
+              </Button>
+            </Link>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ scenarioId: "basic_push_swap_pop", topologyPreset: "standard_core_lsp" }); regenerate(); }}
+          >
+            Scenario: Push, Swap, Pop
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ scenarioId: "php_implicit_null", topologyPreset: "penultimate_hop_popping", phpEnabled: true }); regenerate(); }}
+          >
+            Scenario: Penultimate Hop Popping
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ scenarioId: "l3vpn_multi_tenant_traffic", topologyPreset: "l3vpn_two_label_stack", customerVrf: "VRF_RED_CUSTOMER_A" }); regenerate(); }}
+          >
+            Scenario: L3VPN 2-Label Stack
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ scenarioId: "frr_link_failure_detour", topologyPreset: "mpls_fast_reroute_frr", simulateLinkFailure: true }); regenerate(); }}
+          >
+            Scenario: Fast Reroute (FRR)
           </Button>
         </div>
       </div>

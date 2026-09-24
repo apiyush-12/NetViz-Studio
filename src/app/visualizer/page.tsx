@@ -23,6 +23,7 @@ import { Ipv6Visualizer } from "@/components/protocols/ipv6/ipv6-visualizer";
 import { StpVisualizer } from "@/components/protocols/stp/stp-visualizer";
 import { ArpVisualizer } from "@/components/protocols/arp/arp-visualizer";
 import { VlanVisualizer } from "@/components/protocols/vlan/vlan-visualizer";
+import { MplsVisualizer } from "@/components/protocols/mpls/mpls-visualizer";
 
 function VisualizerContent() {
   const searchParams = useSearchParams();
@@ -203,6 +204,23 @@ function VisualizerContent() {
           </div>
         </div>
         <VlanVisualizer />
+      </div>
+    );
+  }
+
+  if (protocolId === "mpls") {
+    return (
+      <div className="flex flex-col h-full">
+        <div className="p-3 border-b border-border space-y-3">
+          <div className="w-48">
+            <label className="text-xs text-muted-foreground mb-1 block">Protocol</label>
+            <ProtocolSelector
+              value={protocolId ?? "mpls"}
+              onChange={(id) => loadProtocol(id)}
+            />
+          </div>
+        </div>
+        <MplsVisualizer />
       </div>
     );
   }
