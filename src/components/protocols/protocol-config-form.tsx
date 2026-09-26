@@ -17,6 +17,7 @@ import { StpRstpComparisonModal } from "./comparison/stp-rstp-comparison-modal";
 import { ArpNdpComparisonModal } from "./comparison/arp-ndp-comparison-modal";
 import { VlanVxlanComparisonModal } from "./comparison/vlan-vxlan-comparison-modal";
 import { MplsTraditionalIpComparisonModal } from "./comparison/mpls-traditional-ip-comparison-modal";
+import { IcmpV4V6ComparisonModal } from "./comparison/icmp-v4-v6-comparison-modal";
 
 export function ProtocolSelector({
   value,
@@ -700,6 +701,59 @@ export function ProtocolConfigForm() {
             onClick={() => { updateConfig({ scenarioId: "frr_link_failure_detour", topologyPreset: "mpls_fast_reroute_frr", simulateLinkFailure: true }); regenerate(); }}
           >
             Scenario: Fast Reroute (FRR)
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (protocolId === "icmp") {
+    return (
+      <div className="space-y-3 p-3 border border-border rounded-lg bg-card">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-semibold">Internet Control Message Protocol (RFC 792 / RFC 1191)</h3>
+            <Badge variant="default" className="text-[10px] bg-rose-500/20 text-rose-400 border-rose-500/30">
+              Layer 3 Diagnostics
+            </Badge>
+          </div>
+          <div className="flex items-center gap-2">
+            <IcmpV4V6ComparisonModal />
+            <Link href="/protocols/icmp">
+              <Button size="sm" variant="default" className="text-xs">
+                Open Dedicated ICMP Studio →
+              </Button>
+            </Link>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ scenarioId: "ping_echo_success", topologyPreset: "standard_internet_path", initialTtl: 64, dfFlag: false }); regenerate(); }}
+          >
+            Scenario: Ping Echo (Type 8/0)
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ scenarioId: "traceroute_ttl_exceeded", topologyPreset: "standard_internet_path", initialTtl: 1, dfFlag: false }); regenerate(); }}
+          >
+            Scenario: TTL Exceeded (Type 11)
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ scenarioId: "pmtud_frag_needed", topologyPreset: "pmtud_bottleneck_path", packetSize: 1500, dfFlag: true }); regenerate(); }}
+          >
+            Scenario: PMTUD Frag Needed (Type 3/4)
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ scenarioId: "firewall_admin_prohibited", topologyPreset: "unreachable_firewall_network" }); regenerate(); }}
+          >
+            Scenario: Firewall Prohibited (Type 3/13)
           </Button>
         </div>
       </div>

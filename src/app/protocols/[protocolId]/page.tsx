@@ -27,6 +27,7 @@ import { StpVisualizer } from "@/components/protocols/stp/stp-visualizer";
 import { ArpVisualizer } from "@/components/protocols/arp/arp-visualizer";
 import { VlanVisualizer } from "@/components/protocols/vlan/vlan-visualizer";
 import { MplsVisualizer } from "@/components/protocols/mpls/mpls-visualizer";
+import { IcmpVisualizer } from "@/components/protocols/icmp/icmp-visualizer";
 
 function ProtocolDetailContent() {
   const params = useParams();
@@ -106,6 +107,10 @@ function ProtocolDetailContent() {
 
   if (protocolId === "mpls") {
     return <MplsVisualizer />;
+  }
+
+  if (protocolId === "icmp") {
+    return <IcmpVisualizer />;
   }
 
   return (
