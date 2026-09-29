@@ -28,6 +28,7 @@ import { ArpVisualizer } from "@/components/protocols/arp/arp-visualizer";
 import { VlanVisualizer } from "@/components/protocols/vlan/vlan-visualizer";
 import { MplsVisualizer } from "@/components/protocols/mpls/mpls-visualizer";
 import { IcmpVisualizer } from "@/components/protocols/icmp/icmp-visualizer";
+import { RipVisualizer } from "@/components/protocols/rip/rip-visualizer";
 
 function ProtocolDetailContent() {
   const params = useParams();
@@ -111,6 +112,10 @@ function ProtocolDetailContent() {
 
   if (protocolId === "icmp") {
     return <IcmpVisualizer />;
+  }
+
+  if (protocolId === "rip") {
+    return <RipVisualizer />;
   }
 
   return (

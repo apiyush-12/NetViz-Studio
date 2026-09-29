@@ -18,6 +18,7 @@ import { ArpNdpComparisonModal } from "./comparison/arp-ndp-comparison-modal";
 import { VlanVxlanComparisonModal } from "./comparison/vlan-vxlan-comparison-modal";
 import { MplsTraditionalIpComparisonModal } from "./comparison/mpls-traditional-ip-comparison-modal";
 import { IcmpV4V6ComparisonModal } from "./comparison/icmp-v4-v6-comparison-modal";
+import { RipOspfComparisonModal } from "./comparison/rip-ospf-comparison-modal";
 
 export function ProtocolSelector({
   value,
@@ -754,6 +755,59 @@ export function ProtocolConfigForm() {
             onClick={() => { updateConfig({ scenarioId: "firewall_admin_prohibited", topologyPreset: "unreachable_firewall_network" }); regenerate(); }}
           >
             Scenario: Firewall Prohibited (Type 3/13)
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (protocolId === "rip") {
+    return (
+      <div className="space-y-3 p-3 border border-border rounded-lg bg-card">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-semibold">Routing Information Protocol (RFC 1058 / RFC 2453)</h3>
+            <Badge variant="default" className="text-[10px] bg-blue-500/20 text-blue-400 border-blue-500/30">
+              Distance-Vector
+            </Badge>
+          </div>
+          <div className="flex items-center gap-2">
+            <RipOspfComparisonModal />
+            <Link href="/protocols/rip">
+              <Button size="sm" variant="default" className="text-xs">
+                Open Dedicated RIP Studio →
+              </Button>
+            </Link>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ scenarioId: "bellman_ford_convergence", topologyPreset: "linear_4_router", splitHorizon: true, poisonReverse: true }); regenerate(); }}
+          >
+            Scenario: Bellman-Ford Convergence
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ scenarioId: "link_failure_split_horizon", topologyPreset: "linear_4_router", splitHorizon: true, poisonReverse: true }); regenerate(); }}
+          >
+            Scenario: Split Horizon & Poison
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ scenarioId: "count_to_infinity_loop", topologyPreset: "linear_4_router", splitHorizon: false, poisonReverse: false }); regenerate(); }}
+          >
+            Scenario: Count-to-Infinity Loop
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ scenarioId: "ripv2_vlsm_cidr_tagging", topologyPreset: "discontinuous_subnets", version: "ripv2" }); regenerate(); }}
+          >
+            Scenario: VLSM Subnets & Tags
           </Button>
         </div>
       </div>

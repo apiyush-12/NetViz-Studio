@@ -25,6 +25,7 @@ import { ArpVisualizer } from "@/components/protocols/arp/arp-visualizer";
 import { VlanVisualizer } from "@/components/protocols/vlan/vlan-visualizer";
 import { MplsVisualizer } from "@/components/protocols/mpls/mpls-visualizer";
 import { IcmpVisualizer } from "@/components/protocols/icmp/icmp-visualizer";
+import { RipVisualizer } from "@/components/protocols/rip/rip-visualizer";
 
 function VisualizerContent() {
   const searchParams = useSearchParams();
@@ -239,6 +240,23 @@ function VisualizerContent() {
           </div>
         </div>
         <IcmpVisualizer />
+      </div>
+    );
+  }
+
+  if (protocolId === "rip") {
+    return (
+      <div className="flex flex-col h-full">
+        <div className="p-3 border-b border-border space-y-3">
+          <div className="w-48">
+            <label className="text-xs text-muted-foreground mb-1 block">Protocol</label>
+            <ProtocolSelector
+              value={protocolId ?? "rip"}
+              onChange={(id) => loadProtocol(id)}
+            />
+          </div>
+        </div>
+        <RipVisualizer />
       </div>
     );
   }
