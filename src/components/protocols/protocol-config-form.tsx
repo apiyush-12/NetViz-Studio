@@ -19,6 +19,7 @@ import { VlanVxlanComparisonModal } from "./comparison/vlan-vxlan-comparison-mod
 import { MplsTraditionalIpComparisonModal } from "./comparison/mpls-traditional-ip-comparison-modal";
 import { IcmpV4V6ComparisonModal } from "./comparison/icmp-v4-v6-comparison-modal";
 import { RipOspfComparisonModal } from "./comparison/rip-ospf-comparison-modal";
+import { IsisOspfComparisonModal } from "./comparison/isis-ospf-comparison-modal";
 
 export function ProtocolSelector({
   value,
@@ -808,6 +809,74 @@ export function ProtocolConfigForm() {
             onClick={() => { updateConfig({ scenarioId: "ripv2_vlsm_cidr_tagging", topologyPreset: "discontinuous_subnets", version: "ripv2" }); regenerate(); }}
           >
             Scenario: VLSM Subnets & Tags
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (protocolId === "isis") {
+    return (
+      <div className="space-y-3 p-3 border border-border rounded-lg bg-card">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-semibold">IS-IS Protocol Studio</h3>
+            <Badge variant="outline" className="text-[10px] font-mono border-emerald-500/40 text-emerald-400">
+              ISO/IEC 10589 &bull; RFC 1195/5305/5308
+            </Badge>
+          </div>
+          <div className="flex items-center gap-2">
+            <IsisOspfComparisonModal />
+            <Link
+              href="/protocols/isis"
+              className="text-xs text-primary hover:underline font-medium"
+            >
+              Open Full Studio →
+            </Link>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ activeScenario: "multi_area_hierarchy", metricStyle: "wide" }); regenerate(); }}
+          >
+            Scenario: Multi-Area Hierarchy (L1/L2)
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ activeScenario: "broadcast_lan_dis", metricStyle: "wide" }); regenerate(); }}
+          >
+            Scenario: DIS Broadcast Election
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ activeScenario: "route_leaking_ud_bit", routeLeakingEnabled: true }); regenerate(); }}
+          >
+            Scenario: RFC 2966 Route Leaking (U/D)
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ activeScenario: "overload_bit_drain", overloadBit: true }); regenerate(); }}
+          >
+            Scenario: Overload (OL) Bit Drain
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ activeScenario: "wide_metrics_rfc5305", metricStyle: "wide" }); regenerate(); }}
+          >
+            Scenario: RFC 5305 Wide Metrics
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig({ activeScenario: "dual_stack_ipv4_ipv6", ipv6Enabled: true }); regenerate(); }}
+          >
+            Scenario: Dual-Stack IPv4/IPv6
           </Button>
         </div>
       </div>

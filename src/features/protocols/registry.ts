@@ -15,10 +15,10 @@ import { vlanModule } from "./vlan/vlan.module";
 import { mplsModule } from "./mpls/mpls.module";
 import { icmpModule } from "./icmp/icmp.module";
 import { ripModule } from "./rip/rip.module";
+import { isisModule } from "./isis/isis.module";
 
 const plannedProtocols: Omit<ProtocolModule, "generateSimulation" | "configurationSchema" | "defaultConfiguration" | "defaultTopology" | "packetFields" | "explanationSections">[] = [
   { id: "tls", name: "TLS", category: "security", layer: "Application (Layer 7)", summary: "Transport Layer Security — encrypted communication.", status: "planned", learningObjectives: [], simplificationNotes: [] },
-  { id: "isis", name: "IS-IS", category: "routing", layer: "Network (Layer 3)", summary: "Intermediate System to Intermediate System routing.", status: "planned", learningObjectives: [], simplificationNotes: [] },
   { id: "quic", name: "QUIC", category: "transport", layer: "Transport (Layer 4)", summary: "Quick UDP Internet Connections.", status: "planned", learningObjectives: [], simplificationNotes: [] },
 ];
 
@@ -53,6 +53,7 @@ const implementedModules: ProtocolModule[] = [
   mplsModule,
   icmpModule,
   ripModule,
+  isisModule,
 ];
 
 const placeholderModules: ProtocolModule[] = plannedProtocols.map(createPlaceholderModule);
