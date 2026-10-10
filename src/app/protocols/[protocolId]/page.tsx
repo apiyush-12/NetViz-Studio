@@ -30,6 +30,7 @@ import { MplsVisualizer } from "@/components/protocols/mpls/mpls-visualizer";
 import { IcmpVisualizer } from "@/components/protocols/icmp/icmp-visualizer";
 import { RipVisualizer } from "@/components/protocols/rip/rip-visualizer";
 import { IsisVisualizer } from "@/components/protocols/isis/isis-visualizer";
+import { TlsVisualizer } from "@/components/protocols/tls/tls-visualizer";
 
 function ProtocolDetailContent() {
   const params = useParams();
@@ -121,6 +122,10 @@ function ProtocolDetailContent() {
 
   if (protocolId === "isis") {
     return <IsisVisualizer />;
+  }
+
+  if (protocolId === "tls") {
+    return <TlsVisualizer />;
   }
 
   return (

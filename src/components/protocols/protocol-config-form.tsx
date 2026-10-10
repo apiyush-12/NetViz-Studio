@@ -20,6 +20,8 @@ import { MplsTraditionalIpComparisonModal } from "./comparison/mpls-traditional-
 import { IcmpV4V6ComparisonModal } from "./comparison/icmp-v4-v6-comparison-modal";
 import { RipOspfComparisonModal } from "./comparison/rip-ospf-comparison-modal";
 import { IsisOspfComparisonModal } from "./comparison/isis-ospf-comparison-modal";
+import { Tls12Tls13ComparisonModal } from "./comparison/tls12-tls13-comparison-modal";
+import { defaultTlsConfig } from "@/features/protocols/tls/tls.defaults";
 
 export function ProtocolSelector({
   value,
@@ -877,6 +879,203 @@ export function ProtocolConfigForm() {
             onClick={() => { updateConfig({ activeScenario: "dual_stack_ipv4_ipv6", ipv6Enabled: true }); regenerate(); }}
           >
             Scenario: Dual-Stack IPv4/IPv6
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (protocolId === "tls") {
+    const tlsConfig = { ...defaultTlsConfig, ...config };
+    return (
+      <div className="space-y-3 p-3 border border-border rounded-lg bg-card">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-semibold">TLS (Transport Layer Security) Configuration</h3>
+            <Badge variant="outline" className="text-[10px] font-mono text-emerald-400 border-emerald-500/30">
+              {tlsConfig.version === "TLS 1.3" ? "RFC 8446 (1-RTT)" : "RFC 5246 (2-RTT)"}
+            </Badge>
+          </div>
+          <Tls12Tls13ComparisonModal />
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div>
+            <Label className="text-xs text-muted-foreground mb-1 block">Protocol Version</Label>
+            <select
+              value={tlsConfig.version}
+              onChange={(e) => {
+                const v = e.target.value as "TLS 1.3" | "TLS 1.2";
+                updateConfig({
+                  version: v,
+                  cipherSuite: v === "TLS 1.3" ? "TLS_AES_128_GCM_SHA256" : "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+                });
+              }}
+              className="flex h-9 w-full rounded-md border border-input bg-background px-2 text-xs font-medium"
+            >
+              <option value="TLS 1.3">TLS 1.3 (RFC 8446)</option>
+              <option value="TLS 1.2">TLS 1.2 (RFC 5246)</option>
+            </select>
+          </div>
+
+          <div>
+            <Label className="text-xs text-muted-foreground mb-1 block">Cipher Suite</Label>
+            <select
+              value={tlsConfig.cipherSuite}
+              onChange={(e) => updateConfig({ cipherSuite: e.target.value })}
+              className="flex h-9 w-full rounded-md border border-input bg-background px-2 text-xs font-mono font-medium"
+            >
+              {tlsConfig.version === "TLS 1.3" ? (
+                <>
+                  <option value="TLS_AES_128_GCM_SHA256">TLS_AES_128_GCM_SHA256</option>
+                  <option value="TLS_AES_256_GCM_SHA384">TLS_AES_256_GCM_SHA384</option>
+                  <option value="TLS_CHACHA20_POLY1305_SHA256">TLS_CHACHA20_POLY1305_SHA256</option>
+                </>
+              ) : (
+                <>
+                  <option value="TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256">TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256</option>
+                  <option value="TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384">TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384</option>
+                </>
+              )}
+            </select>
+          </div>
+
+          <Field
+            label="SNI Hostname"
+            value={tlsConfig.sniHostname}
+            onChange={(v) => updateConfig({ sniHostname: v })}
+          />
+
+          <div>
+            <Label className="text-xs text-muted-foreground mb-1 block">Key Share Group</Label>
+            <select
+              value={tlsConfig.namedGroup}
+              onChange={(e) => updateConfig({ namedGroup: e.target.value })}
+              className="flex h-9 w-full rounded-md border border-input bg-background px-2 text-xs font-mono font-medium"
+            >
+              <option value="x25519">x25519 (Curve25519)</option>
+              <option value="secp256r1">secp256r1 (NIST P-256)</option>
+              <option value="secp384r1">secp384r1 (NIST P-384)</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+          <div className="flex items-center justify-between p-2 rounded-lg bg-secondary/30 border border-border/50">
+            <Label className="text-xs">0-RTT Early Data Resumption (PSK)</Label>
+            <Switch
+              checked={tlsConfig.zeroRttEnabled && tlsConfig.version === "TLS 1.3"}
+              onCheckedChange={(checked) => updateConfig({ zeroRttEnabled: checked })}
+            />
+          </div>
+          <div className="flex items-center justify-between p-2 rounded-lg bg-secondary/30 border border-border/50">
+            <Label className="text-xs">Mutual TLS (mTLS) Client Certificate Auth</Label>
+            <Switch
+              checked={tlsConfig.mTlsEnabled}
+              onCheckedChange={(checked) => updateConfig({ mTlsEnabled: checked })}
+            />
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between pt-2 border-t border-border/50">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => { updateConfig(defaultTlsConfig as unknown as Record<string, unknown>); regenerate(); }}
+            className="text-xs cursor-pointer gap-1"
+          >
+            <RotateCcw className="h-3.5 w-3.5" />
+            Reset Defaults
+          </Button>
+          <Button
+            size="sm"
+            variant="default"
+            onClick={() => regenerate()}
+            className="text-xs cursor-pointer"
+          >
+            Simulate TLS Handshake
+          </Button>
+        </div>
+
+        <div className="flex flex-wrap gap-2 pt-1 border-t border-border/50">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              updateConfig({
+                scenarioId: "tls13_full_handshake",
+                version: "TLS 1.3",
+                cipherSuite: "TLS_AES_128_GCM_SHA256",
+                certStatus: "valid",
+                zeroRttEnabled: false,
+                mTlsEnabled: false,
+              });
+              regenerate();
+            }}
+          >
+            Scenario: 1-RTT Full Handshake
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              updateConfig({
+                scenarioId: "tls12_vs_tls13_latency",
+                version: "TLS 1.2",
+                cipherSuite: "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+                certStatus: "valid",
+                zeroRttEnabled: false,
+                mTlsEnabled: false,
+              });
+              regenerate();
+            }}
+          >
+            Scenario: 2-RTT Legacy Handshake (TLS 1.2)
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              updateConfig({
+                scenarioId: "tls13_zero_rtt_psk",
+                version: "TLS 1.3",
+                cipherSuite: "TLS_AES_128_GCM_SHA256",
+                zeroRttEnabled: true,
+                certStatus: "valid",
+              });
+              regenerate();
+            }}
+          >
+            Scenario: 0-RTT Early Data Resumption
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              updateConfig({
+                scenarioId: "mtls_mutual_authentication",
+                version: "TLS 1.3",
+                mTlsEnabled: true,
+                certStatus: "valid",
+              });
+              regenerate();
+            }}
+          >
+            Scenario: Mutual TLS (mTLS) Auth
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              updateConfig({
+                scenarioId: "mitm_untrusted_cert_attack",
+                version: "TLS 1.3",
+                certStatus: "expired",
+              });
+              regenerate();
+            }}
+          >
+            Scenario: MITM Expired Cert Failure
           </Button>
         </div>
       </div>

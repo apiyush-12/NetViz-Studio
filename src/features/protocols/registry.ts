@@ -16,9 +16,9 @@ import { mplsModule } from "./mpls/mpls.module";
 import { icmpModule } from "./icmp/icmp.module";
 import { ripModule } from "./rip/rip.module";
 import { isisModule } from "./isis/isis.module";
+import { tlsModule } from "./tls/tls.module";
 
 const plannedProtocols: Omit<ProtocolModule, "generateSimulation" | "configurationSchema" | "defaultConfiguration" | "defaultTopology" | "packetFields" | "explanationSections">[] = [
-  { id: "tls", name: "TLS", category: "security", layer: "Application (Layer 7)", summary: "Transport Layer Security — encrypted communication.", status: "planned", learningObjectives: [], simplificationNotes: [] },
   { id: "quic", name: "QUIC", category: "transport", layer: "Transport (Layer 4)", summary: "Quick UDP Internet Connections.", status: "planned", learningObjectives: [], simplificationNotes: [] },
 ];
 
@@ -54,6 +54,7 @@ const implementedModules: ProtocolModule[] = [
   icmpModule,
   ripModule,
   isisModule,
+  tlsModule,
 ];
 
 const placeholderModules: ProtocolModule[] = plannedProtocols.map(createPlaceholderModule);

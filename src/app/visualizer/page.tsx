@@ -27,6 +27,7 @@ import { MplsVisualizer } from "@/components/protocols/mpls/mpls-visualizer";
 import { IcmpVisualizer } from "@/components/protocols/icmp/icmp-visualizer";
 import { RipVisualizer } from "@/components/protocols/rip/rip-visualizer";
 import { IsisVisualizer } from "@/components/protocols/isis/isis-visualizer";
+import { TlsVisualizer } from "@/components/protocols/tls/tls-visualizer";
 
 function VisualizerContent() {
   const searchParams = useSearchParams();
@@ -275,6 +276,23 @@ function VisualizerContent() {
           </div>
         </div>
         <IsisVisualizer />
+      </div>
+    );
+  }
+
+  if (protocolId === "tls") {
+    return (
+      <div className="flex flex-col h-full">
+        <div className="p-3 border-b border-border space-y-3">
+          <div className="w-48">
+            <label className="text-xs text-muted-foreground mb-1 block">Protocol</label>
+            <ProtocolSelector
+              value={protocolId ?? "tls"}
+              onChange={(id) => loadProtocol(id)}
+            />
+          </div>
+        </div>
+        <TlsVisualizer />
       </div>
     );
   }
